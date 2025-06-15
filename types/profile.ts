@@ -1,0 +1,1 @@
+export type ActiveTabTypes = 'dashboard' | 'myGroups' | 'dayPasses' | 'activity' | 'settings';
