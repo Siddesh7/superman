@@ -65,13 +65,13 @@ const GroupsComponent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-3xl font-bold ">Groups</h1>
+            <p className=" mt-1">
               Join group purchases to get better prices on products you want
             </p>
           </div>
@@ -86,7 +86,7 @@ const GroupsComponent = () => {
         </div>
 
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 bg-white p-4 rounded-lg shadow-sm border">
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 bg-transparent p-4 rounded-lg shadow-sm border">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
@@ -114,7 +114,7 @@ const GroupsComponent = () => {
 
         <Tabs defaultValue="active" className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <TabsList className="grid w-fit grid-cols-2 bg-gray-100 p-1 rounded-lg">
+            <TabsList className="flex h-[50px] w-fit grid-cols-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
               <TabsTrigger
                 value="active"
                 className="px-6 py-2 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
@@ -158,9 +158,11 @@ const GroupsComponent = () => {
 const renderGroupGrid = (groups: Group[], emptyMessage: string) => {
   if (groups.length === 0) {
     return (
-      <div className="text-center py-16 bg-white rounded-lg border-2 border-dashed border-gray-200">
+      <div className="text-center py-16 rounded-lg border-2 border-dashed border-gray-200">
         <div className="text-gray-400 text-4xl mb-4">📦</div>
-        <p className="text-gray-500 text-lg">{emptyMessage}</p>
+        <p className="text-gray-500 dark:text-gray-200 text-lg">
+          {emptyMessage}
+        </p>
       </div>
     );
   }

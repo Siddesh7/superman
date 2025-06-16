@@ -7,7 +7,8 @@ import { useProfile } from "@/context/ProfileContext";
 import React from "react";
 
 const GroupsPage = () => {
-  const { showCreateGroupModal, showJoinGroupModal } = useProfile();
+  const { showCreateGroupModal, showJoinGroupModal, selectedGroup } =
+    useProfile();
 
   return (
     <div>
@@ -17,7 +18,9 @@ const GroupsPage = () => {
       {showCreateGroupModal && <CreateGroupModal />}
 
       {/* Join Group Modal */}
-      {showJoinGroupModal && <JoinGroupModal />}
+      {showJoinGroupModal && selectedGroup && (
+        <JoinGroupModal group={selectedGroup} />
+      )}
     </div>
   );
 };

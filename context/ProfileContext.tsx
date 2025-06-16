@@ -1,6 +1,7 @@
 "use client";
 
 import { ActiveTabTypes } from "@/types/profile";
+import { Group } from "@/types/groups";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface ProfileContextType {
@@ -12,6 +13,8 @@ interface ProfileContextType {
   setShowCreateGroupModal: (show: boolean) => void;
   showJoinGroupModal: boolean;
   setShowJoinGroupModal: (show: boolean) => void;
+  selectedGroup: Group | null;
+  setSelectedGroup: (group: Group | null) => void;
   // groupName: string;
   // setGroupName: (name: string) => void;
   // targetAmount: string;
@@ -30,6 +33,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [showJoinGroupModal, setShowJoinGroupModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [copySuccess, setCopySuccess] = useState("");
 
   // const handleCreateGroup = (e: React.FormEvent) => {
@@ -53,6 +57,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     setShowCreateGroupModal,
     showJoinGroupModal,
     setShowJoinGroupModal,
+    selectedGroup,
+    setSelectedGroup,
     copySuccess,
     setCopySuccess,
     // handleCreateGroup,

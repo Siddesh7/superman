@@ -26,14 +26,18 @@ const statusConfig = {
 
 export function GroupCard({ group }: GroupCardProps) {
   const statusStyle = statusConfig[group.status];
+  const { setShowJoinGroupModal, setSelectedGroup } = useProfile();
 
-  const { setShowJoinGroupModal } = useProfile();
+  const handleJoinClick = () => {
+    setSelectedGroup(group);
+    setShowJoinGroupModal(true);
+  };
 
   return (
     <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-0 shadow-md">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900 truncate">
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-200 truncate">
             {group.name}
           </CardTitle>
           <Badge
@@ -45,7 +49,7 @@ export function GroupCard({ group }: GroupCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center text-sm text-gray-600">
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
           <Package className="w-4 h-4 mr-2 text-gray-400" />
           <span className="truncate">{group.purchase_item}</span>
         </div>
@@ -55,7 +59,7 @@ export function GroupCard({ group }: GroupCardProps) {
             <DollarSign className="w-4 h-4 mr-2 text-green-500" />
             <div>
               <p className="text-gray-500">Target</p>
-              <p className="font-semibold text-gray-900">
+              <p className="font-semibold text-gray-900 dark:text-gray-300">
                 ${group.target_amount.toLocaleString()}
               </p>
             </div>
@@ -65,7 +69,9 @@ export function GroupCard({ group }: GroupCardProps) {
             <Users className="w-4 h-4 mr-2 text-blue-500" />
             <div>
               <p className="text-gray-500">Max Members</p>
-              <p className="font-semibold text-gray-900">{group.max_members}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-300">
+                {group.max_members}
+              </p>
             </div>
           </div>
         </div>
@@ -85,9 +91,9 @@ export function GroupCard({ group }: GroupCardProps) {
           </Button>
           {group.status === "pending" && (
             <Button
-              onClick={() => setShowJoinGroupModal(true)}
+              onClick={handleJoinClick}
               size="sm"
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white"
             >
               Join Group
             </Button>
