@@ -1,26 +1,39 @@
-import { ActiveTabTypes } from "@/types/profile";
-import React, { FC, useState } from "react";
+import { useProfile } from "@/context/ProfileContext";
+import { Link } from "lucide-react";
+import React, { useState } from "react";
 
-type ProfileHeaderProps = {
-  activeTab: ActiveTabTypes;
-};
-
-const ProfileHeader: FC<ProfileHeaderProps> = ({ activeTab }) => {
+const ProfileHeader = () => {
+  const { activeTab, setShowJoinGroupModal } = useProfile();
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="flex items-center justify-between px-8 py-4">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          {activeTab === "dashboard" && "Dashboard"}
-          {activeTab === "myGroups" && "My Groups"}
-          {activeTab === "dayPasses" && "Day Passes"}
-          {activeTab === "activity" && "Activity"}
-          {activeTab === "settings" && "Settings"}
-        </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            {activeTab === "dashboard" && "Dashboard"}
+            {activeTab === "myGroups" && "My Groups"}
+            {activeTab === "dayPasses" && "Day Passes"}
+            {activeTab === "activity" && "Activity"}
+            {activeTab === "settings" && "Settings"}
+          </h1>
+
+          <p className="text-gray-500">
+            {activeTab === "myGroups" &&
+              "Manage your group memberships and contributions"}
+          </p>
+        </div>
 
         <div className="flex items-center space-x-4">
           <button
+            onClick={() => setShowJoinGroupModal(true)}
+            className="flex gap-2 bg-white border border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap"
+          >
+            <Link />
+            Join via Link
+          </button>
+
+          {/* <button
             onClick={() => setShowNotifications(!showNotifications)}
             className="relative p-2 text-gray-600 hover:text-indigo-600 transition-colors cursor-pointer whitespace-nowrap"
           >
@@ -28,7 +41,7 @@ const ProfileHeader: FC<ProfileHeaderProps> = ({ activeTab }) => {
             <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
               3
             </span>
-          </button>
+          </button> */}
 
           {showNotifications && (
             <div className="absolute right-8 mt-12 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-20">
@@ -73,14 +86,6 @@ const ProfileHeader: FC<ProfileHeaderProps> = ({ activeTab }) => {
               </div>
             </div>
           )}
-
-          <button
-            //   onClick={() => setShowCreateGroupModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-button transition-all duration-300 ease-in-out shadow cursor-pointer whitespace-nowrap"
-          >
-            <i className="fas fa-plus mr-2"></i>
-            Create Group
-          </button>
         </div>
       </div>
     </header>

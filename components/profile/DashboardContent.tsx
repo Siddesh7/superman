@@ -1,15 +1,25 @@
-import { ActiveTabTypes } from "@/types/profile";
-import React, { FC } from "react";
+import { useProfile } from "@/context/ProfileContext";
+import { useWallet } from "@/lib/hooks/useWallet";
+import { useSession } from "next-auth/react";
+import React from "react";
 
-type DashboardContentProps = {
-  activeTab: ActiveTabTypes;
-  setActiveTab: (activeTab: ActiveTabTypes) => void;
-};
+const DashboardContent = () => {
+  const { setActiveTab } = useProfile();
 
-const DashboardContent: FC<DashboardContentProps> = ({ setActiveTab }) => {
+  const { data: session } = useSession();
+
+  const {
+    data: walletData,
+    isLoading: isWalletLoading,
+    error: walletError,
+    refetch: refetchWallet,
+  } = useWallet(session?.user?.id);
+
+  console.log("wallet data", walletData);
+
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
         <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-gray-800">Active Groups</h3>

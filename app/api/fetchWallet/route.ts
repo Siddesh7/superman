@@ -27,9 +27,19 @@ export async function GET() {
             name: session.user.id, // uniquely identifies user wallet
         });
 
+        console.log("Account", account,);
+        const balance = await account.listTokenBalances({
+            network: 'base'
+        })
+
+        console.log("balance", balance);
+
         return NextResponse.json({
             success: true,
-            data: account
+            data: {
+                account,
+                balance
+            }
         });
 
     } catch (error) {

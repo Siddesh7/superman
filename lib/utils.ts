@@ -13,4 +13,13 @@ export const formatWalletAddress = (address: string, visibleChars: number = 5): 
   const start = address.slice(0, visibleChars);
   const end = address.slice(-visibleChars);
   return `${start}...${end}`;
-}; 
+};
+
+export const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    // toast.success("Wallet address copied to clipboard");
+  } catch (err) {
+    // toast.error("Failed to copy wallet address");
+  }
+};

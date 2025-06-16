@@ -1,29 +1,19 @@
-import React, { FC } from "react";
+import React from "react";
 import ProfileHeader from "./ProfileHeader";
-import { ActiveTabTypes } from "@/types/profile";
 import DashboardContent from "./DashboardContent";
 import MyGroupsContent from "./MyGroupsContent";
 import MyActivityContent from "./MyActivityContent";
+import { useProfile } from "@/context/ProfileContext";
 
-type ProfileContentProps = {
-  activeTab: ActiveTabTypes;
-  setActiveTab: (activeTab: ActiveTabTypes) => void;
-};
+const ProfileContent = () => {
+  const { activeTab } = useProfile();
 
-const ProfileContent: FC<ProfileContentProps> = ({
-  activeTab,
-  setActiveTab,
-}) => {
   return (
     <>
-      <ProfileHeader activeTab={activeTab} />
-      {activeTab === "dashboard" && (
-        <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
+      <ProfileHeader />
+      {activeTab === "dashboard" && <DashboardContent />}
 
-      {activeTab === "myGroups" && (
-        <MyGroupsContent activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
+      {activeTab === "myGroups" && <MyGroupsContent />}
 
       {activeTab === "dayPasses" && <></>}
       {activeTab === "activity" && <MyActivityContent />}

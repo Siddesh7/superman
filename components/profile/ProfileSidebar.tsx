@@ -1,15 +1,23 @@
-import { ActiveTabTypes } from "@/types/profile";
-import React, { FC } from "react";
+import React from "react";
+import { useProfile } from "@/context/ProfileContext";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
-type ProfileSidebarProps = {
-  activeTab: ActiveTabTypes;
-  setActiveTab: (activeTab: ActiveTabTypes) => void;
-};
+const ProfileSidebar = () => {
+  const { activeTab, setActiveTab } = useProfile();
+  const { data: session } = useSession();
 
-const ProfileSidebar: FC<ProfileSidebarProps> = ({
-  setActiveTab,
-  activeTab,
-}) => {
+  const truncateEmail = (email: string) => {
+    if (!email) return "Not signed in";
+    const [username, domain] = email.split("@");
+    if (username.length > 10) {
+      return `${username.substring(0, 10)}...@${domain}`;
+    }
+    return email;
+  };
+
+  console.log("Session", session);
+
   return (
     <div className="w-64 bg-white shadow-lg fixed h-full z-10 backdrop-blur-md bg-white/90">
       <div className="p-6">
@@ -21,11 +29,25 @@ const ProfileSidebar: FC<ProfileSidebarProps> = ({
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-              <i className="fas fa-user text-indigo-600"></i>
+              {session?.user?.image ? (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "User"}
+                  className="rounded-full"
+                  height={40}
+                  width={40}
+                />
+              ) : (
+                <i className="fas fa-user text-indigo-600"></i>
+              )}
             </div>
             <div>
-              <p className="font-medium text-gray-800">John Doe</p>
-              <p className="text-sm text-gray-500">john.doe@example.com</p>
+              <p className="font-medium text-gray-800">
+                {session?.user?.name || "User"}
+              </p>
+              <p className="text-sm text-gray-500">
+                {truncateEmail(session?.user?.email || "")}
+              </p>
             </div>
           </div>
 

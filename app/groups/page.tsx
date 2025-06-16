@@ -1,23 +1,17 @@
 "use client";
 
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
+import GroupsComponent from "@/components/groups/GroupsComponent";
 import JoinGroupModal from "@/components/groups/JoinGroupModal";
-import ProfileContent from "@/components/profile/ProfileContent";
-import ProfileSidebar from "@/components/profile/ProfileSidebar";
 import { useProfile } from "@/context/ProfileContext";
 import React from "react";
 
-const ProfilePageContent = () => {
+const GroupsPage = () => {
   const { showCreateGroupModal, showJoinGroupModal } = useProfile();
 
   return (
-    <div className="bg-gray-50 flex">
-      <ProfileSidebar />
-      <div className="flex-1 ml-64">
-        <main className="p-8">
-          <ProfileContent />
-        </main>
-      </div>
+    <div>
+      <GroupsComponent />
 
       {/* Create Group Modal */}
       {showCreateGroupModal && <CreateGroupModal />}
@@ -28,8 +22,4 @@ const ProfilePageContent = () => {
   );
 };
 
-const Page = () => {
-  return <ProfilePageContent />;
-};
-
-export default Page;
+export default GroupsPage;

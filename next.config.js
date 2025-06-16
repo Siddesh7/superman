@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['readdy.ai'],
+        domains: ['readdy.ai', 'lh3.googleusercontent.com'],
     },
 }
 
