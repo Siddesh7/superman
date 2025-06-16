@@ -32,16 +32,17 @@ const ConnectWallet = () => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
 
-  const { data: existingUser, isLoading: isUserLoading } = useUser(
-    session?.user?.id
-  );
-
   const {
     data: walletData,
     isLoading: isWalletLoading,
     error: walletError,
     refetch: refetchWallet,
   } = useWallet(session?.user?.id);
+
+  const { data: existingUser, isLoading: isUserLoading } = useUser(
+    walletData?.account.address
+  );
+
   const createUserMutation = useCreateUser();
 
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -70,10 +71,17 @@ const ConnectWallet = () => {
           retryStep(1);
         }
       } else {
+        setShowOnboarding(false); // Close modal if user exists
         toast.success("Profile connected successfully!");
       }
     }
-  }, [session, existingUser, isUserLoading, walletData]);
+  }, [
+    session,
+    existingUser,
+    isUserLoading,
+    walletData,
+    createUserMutation.isPending,
+  ]);
 
   const retryStep = async (stepIndex: number) => {
     try {
@@ -100,7 +108,7 @@ const ConnectWallet = () => {
           userId: session.user.id,
           name: session.user.name || undefined,
           email: session.user.email || undefined,
-          walletAddress: walletData.address,
+          walletAddress: walletData.account.address,
           profilePicUrl: session.user.image || undefined,
         });
 
@@ -152,7 +160,7 @@ const ConnectWallet = () => {
       if (existingUser) {
         return { ...step, status: "completed" };
       }
-      if (walletData && !existingUser) {
+      if (walletData && !existingUser && !createUserMutation.isPending) {
         return {
           ...step,
           status: "loading",

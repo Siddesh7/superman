@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, DollarSign, Users, Package } from "lucide-react";
+import { Calendar, DollarSign, Users, Package, Share2 } from "lucide-react";
 import { Group } from "@/types/groups";
 import { useProfile } from "@/context/ProfileContext";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface GroupCardProps {
   group: Group;
@@ -27,10 +29,26 @@ const statusConfig = {
 export function GroupCard({ group }: GroupCardProps) {
   const statusStyle = statusConfig[group.status];
   const { setShowJoinGroupModal, setSelectedGroup } = useProfile();
+  const router = useRouter();
 
   const handleJoinClick = () => {
     setSelectedGroup(group);
     setShowJoinGroupModal(true);
+  };
+
+  const handleViewDetails = () => {
+    router.push(`/groups/${group.id}`);
+  };
+
+  const handleShareClick = async () => {
+    const shareUrl = `${window.location.origin}/groups/${group.id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Group link copied to clipboard!");
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
+    }
   };
 
   return (
@@ -86,17 +104,28 @@ export function GroupCard({ group }: GroupCardProps) {
             variant="outline"
             size="sm"
             className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+            onClick={handleViewDetails}
           >
             View Details
           </Button>
           {group.status === "pending" && (
-            <Button
-              onClick={handleJoinClick}
-              size="sm"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white"
-            >
-              Join Group
-            </Button>
+            <>
+              <Button
+                onClick={handleJoinClick}
+                size="sm"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white"
+              >
+                Join Group
+              </Button>
+              <Button
+                onClick={handleShareClick}
+                size="sm"
+                variant="outline"
+                className="hover:bg-gray-50"
+              >
+                <Share2 className="w-4 h-4" />
+              </Button>
+            </>
           )}
         </div>
       </CardContent>

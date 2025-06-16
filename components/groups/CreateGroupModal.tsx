@@ -1,5 +1,6 @@
 import { useProfile } from "@/context/ProfileContext";
 import { useCreateGroup } from "@/lib/hooks/useCreateGroup";
+import { useWallet } from "@/lib/hooks/useWallet";
 import { X } from "lucide-react";
 import React from "react";
 import { useSession } from "next-auth/react";
@@ -8,6 +9,7 @@ const CreateGroupModal = () => {
   const { setShowCreateGroupModal } = useProfile();
   const { data: session } = useSession();
   const createGroup = useCreateGroup();
+  const { data: walletData } = useWallet(session?.user?.id);
 
   const [groupName, setGroupName] = React.useState("");
   const [targetAmount, setTargetAmount] = React.useState("");
@@ -22,12 +24,17 @@ const CreateGroupModal = () => {
       return;
     }
 
+    if (!walletData?.account?.address) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
     try {
       await createGroup.mutateAsync({
         name: groupName,
         target_amount: parseFloat(targetAmount),
         max_members: parseInt(maxMembers),
-        created_by: session.user.id,
+        created_by: walletData.account.address,
         purchase_item: purchaseItem,
       });
 

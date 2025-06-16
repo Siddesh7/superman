@@ -1,17 +1,5 @@
+import { WalletData } from "@/types/wallet";
 import { useQuery } from "@tanstack/react-query";
-
-export interface WalletData {
-    account: {
-        address: string;
-    };
-    balance: {
-        network: string;
-        tokens: Array<{
-            symbol: string;
-            balance: string;
-        }>;
-    };
-}
 
 export function useWallet(userId?: string) {
     return useQuery({
@@ -28,6 +16,7 @@ export function useWallet(userId?: string) {
                 throw new Error("No wallet data received from API");
             }
 
+            console.log("wallet data", data);
             return data.data as WalletData;
         },
         enabled: !!userId,

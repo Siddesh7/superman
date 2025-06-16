@@ -1,22 +1,15 @@
+import { UserData } from "@/types/profile";
 import { useQuery } from "@tanstack/react-query";
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    wallet_address: string;
-    profile_pic_url: string;
-}
-
-export function useUser(userId?: string) {
+export function useUser(wallet_address?: string) {
     return useQuery({
-        queryKey: ['user', userId],
+        queryKey: ['user', wallet_address],
         queryFn: async () => {
-            if (!userId) return null;
-            const response = await fetch(`/api/user?id=${userId}`);
+            if (!wallet_address) return null;
+            const response = await fetch(`/api/user?wallet_address=${wallet_address}`);
             if (!response.ok) return null;
-            return response.json() as Promise<User>;
+            return response.json() as Promise<UserData>;
         },
-        enabled: !!userId,
+        enabled: !!wallet_address,
     });
 } 

@@ -1,23 +1,44 @@
 import React from "react";
 import ProfileHeader from "./ProfileHeader";
 import DashboardContent from "./DashboardContent";
-import MyGroupsContent from "./MyGroupsContent";
-import MyActivityContent from "./MyActivityContent";
 import { useProfile } from "@/context/ProfileContext";
+import { UserData } from "@/types/profile";
+import { Group } from "@/types/groups";
+import MyWalletContent from "./MyWalletContent";
+import { WalletData } from "@/types/wallet";
+import DayPassesContent from "./DayPassesContent";
 
-const ProfileContent = () => {
+const isGroupActive = (group: Group): boolean => {
+  return group.status === "pending" || group.status === "funded";
+};
+
+const getActiveGroups = (groups: Group[]): Group[] => {
+  return groups.filter(isGroupActive);
+};
+
+const ProfileContent = ({
+  existingUser,
+  walletData,
+}: {
+  existingUser: UserData;
+  walletData: WalletData;
+}) => {
   const { activeTab } = useProfile();
+
+  const activeGroupsList = getActiveGroups(existingUser.joinedGroups);
 
   return (
     <>
       <ProfileHeader />
-      {activeTab === "dashboard" && <DashboardContent />}
+      {activeTab === "dashboard" && (
+        <DashboardContent
+          existingUser={existingUser}
+          activeGroups={activeGroupsList.length}
+        />
+      )}
 
-      {activeTab === "myGroups" && <MyGroupsContent />}
-
-      {activeTab === "dayPasses" && <></>}
-      {activeTab === "activity" && <MyActivityContent />}
-      {activeTab === "settings" && <></>}
+      {activeTab === "myWallet" && <MyWalletContent walletData={walletData} />}
+      {activeTab === "dayPasses" && <DayPassesContent />}
     </>
   );
 };

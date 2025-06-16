@@ -2,6 +2,7 @@ export type Group = {
     id: string;
     name: string;
     target_amount: number;
+    joinedCount: number;
     max_members: number;
     status: 'pending' | 'funded' | 'expired';
     created_by: string;

@@ -15,32 +15,23 @@ interface ProfileContextType {
   setShowJoinGroupModal: (show: boolean) => void;
   selectedGroup: Group | null;
   setSelectedGroup: (group: Group | null) => void;
-  // groupName: string;
-  // setGroupName: (name: string) => void;
-  // targetAmount: string;
-  // setTargetAmount: (amount: string) => void;
-  // maxMembers: string;
-  // setMaxMembers: (members: string) => void;
-  // copyToClipboard: (text: string) => void;
-  // handleCreateGroup: (e: React.FormEvent) => void;
+  copySuccess: string;
+  setCopySuccess: (success: string) => void;
+  walletAddress: string | null;
+  setWalletAddress: (address: string | null) => void;
   handleJoinGroup: (e: React.FormEvent) => void;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTabTypes>("dashboard");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [showJoinGroupModal, setShowJoinGroupModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [copySuccess, setCopySuccess] = useState("");
-
-  // const handleCreateGroup = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   // Here would be the logic to create a group
-  //   setShowCreateGroupModal(false);
-  // };
 
   const handleJoinGroup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +52,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
     setSelectedGroup,
     copySuccess,
     setCopySuccess,
-    // handleCreateGroup,
+    walletAddress,
+    setWalletAddress,
     handleJoinGroup,
   };
 
