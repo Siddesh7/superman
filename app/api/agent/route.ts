@@ -1,41 +1,37 @@
-import { NextResponse } from "next/server";
-// import { createAgent } from "./create-agent";
-import { AgentKit } from "@coinbase/agentkit";
-import { createAgent } from "./create-agent";
+import { NextResponse } from 'next/server';
+import { createAgent } from './create-agent';
 
-export type AgentRequest = { userMessage: string };
-
-export type AgentResponse = {
-    response?: string;
-    error?: string;
-    status?: string;
-    agentInstance?: AgentKit;
-};
-
-export async function GET(
-
-): Promise<NextResponse<AgentResponse>> {
+export async function POST(request: Request) {
     try {
-        // 2. Get the agent
-        const agentInstance = await createAgent();
+        // 1️. Extract user message from the request body
+        const { userMessage } = await request.json();
 
-        // 3. Process the user message with the agent
-        // TODO: Implement actual message processing with agentInstance
-        const response = `Received message:`;
+        // Process the request
+        // Add your business logic here
 
-        return NextResponse.json({
-            status: "success",
-            response,
-            agentInstance
-        });
+        const agent = await createAgent();
+
+        // Return success response
+        return NextResponse.json(
+            {
+                success: true,
+                data: {
+                    message: 'Request processed successfully',
+                    agent: agent
+                }
+            },
+            { status: 200 }
+        );
 
     } catch (error) {
-        console.error("Error processing request:", error);
-        return NextResponse.json({
-            error:
-                error instanceof Error
-                    ? error.message
-                    : "I'm sorry, I encountered an issue processing your message. Please try again later.",
-        });
+        console.error('API Error:', error);
+        return NextResponse.json(
+            {
+                success: false,
+                error: 'Invalid request data',
+                details: error,
+            },
+            { status: 400 }
+        );
     }
 }

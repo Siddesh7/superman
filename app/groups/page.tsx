@@ -3,6 +3,7 @@
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
 import GroupsComponent from "@/components/groups/GroupsComponent";
 import JoinGroupModal from "@/components/groups/JoinGroupModal";
+import { Button } from "@/components/ui/button";
 import { useGlobalContext } from "@/context/GlobalContext";
 import React from "react";
 
