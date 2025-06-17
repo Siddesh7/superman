@@ -1,3 +1,8 @@
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
+
 import express, { Request, Response } from "express";
 import { paymentMiddleware } from "x402-express";
 import QRCode from "qrcode";
@@ -71,7 +76,8 @@ interface PaymentResponse {
 // Configure x402 middleware for protected endpoints
 app.use(
   paymentMiddleware(
-    "0x9bfeBd2E81725D7a3282cdB01cD1C3732178E954",
+    (process.env.X402_RECIPIENT_ADDRESS ||
+      "0x9bfeBd2E81725D7a3282cdB01cD1C3732178E954") as `0x${string}`,
     {
       "POST /buy-membership": {
         price: "$0.001",
@@ -83,7 +89,8 @@ app.use(
       },
     },
     {
-      url: "https://x402.org/facilitator",
+      url: (process.env.X402_FACILITATOR_URL ||
+        "https://x402.org/facilitator") as `${string}://${string}`,
     }
   )
 );
