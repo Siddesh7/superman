@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
-  /* config options here */
 };
 
 export default withPWA({
