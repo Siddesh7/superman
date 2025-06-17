@@ -1,4 +1,4 @@
-import { useProfile } from "@/context/ProfileContext";
+import { useGlobalContext } from "@/context/GlobalContext";
 import { useJoinGroup } from "@/lib/hooks/useJoinGroup";
 import { Group } from "@/types/groups";
 import { X } from "lucide-react";
@@ -9,7 +9,7 @@ interface JoinGroupModalProps {
 }
 
 const JoinGroupModal = ({ group }: JoinGroupModalProps) => {
-  const { setShowJoinGroupModal } = useProfile();
+  const { setShowJoinGroupModal } = useGlobalContext();
   const joinGroup = useJoinGroup();
 
   const handleSubmit = async (e: React.FormEvent) => {

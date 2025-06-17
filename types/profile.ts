@@ -1,6 +1,6 @@
 import { Group } from "./groups";
 
-export type ActiveTabTypes = 'dashboard' | 'myWallet' | 'dayPasses' | 'logout';
+export type ActiveTabTypes = 'dashboard' | 'myGroups' | 'myWallet' | 'dayPasses' | 'logout';
 
 export type UserData = {
     id: string;

@@ -3,12 +3,12 @@
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
 import GroupsComponent from "@/components/groups/GroupsComponent";
 import JoinGroupModal from "@/components/groups/JoinGroupModal";
-import { useProfile } from "@/context/ProfileContext";
+import { useGlobalContext } from "@/context/GlobalContext";
 import React from "react";
 
 const GroupsPage = () => {
   const { showCreateGroupModal, showJoinGroupModal, selectedGroup } =
-    useProfile();
+    useGlobalContext();
 
   return (
     <div>

@@ -37,6 +37,18 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id;
     const { group_id } = await req.json();
 
+    // 1. Check if already a member
+    const { data: existing, error: checkError } = await supabaseClient
+        .from("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("user_id", userId)
+        .single();
+
+    if (existing) {
+        return NextResponse.json({ error: "You have already joined this group." }, { status: 400 });
+    }
+
     const { data, error } = await supabaseClient.from('group_members').insert({
         group_id,
         user_id: userId,

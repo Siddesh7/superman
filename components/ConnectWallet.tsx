@@ -25,12 +25,24 @@ interface OnboardingStep {
   title: string;
   description: string;
   status: "pending" | "loading" | "completed" | "error";
-  retry?: () => Promise<void>;
 }
 
 const ConnectWallet = () => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingSteps, setOnboardingSteps] = useState<OnboardingStep[]>([
+    {
+      title: "Connecting Wallet",
+      description: "Setting up your Coinbase CDP wallet...",
+      status: "pending",
+    },
+    {
+      title: "Creating Account",
+      description: "Setting up your account...",
+      status: "pending",
+    },
+  ]);
 
   const {
     data: walletData,
@@ -39,137 +51,68 @@ const ConnectWallet = () => {
     refetch: refetchWallet,
   } = useWallet(session?.user?.id);
 
-  const { data: existingUser, isLoading: isUserLoading } = useUser(
-    walletData?.account.address
-  );
+  const {
+    data: existingUser,
+    isLoading: isUserLoading,
+    refetch: refetchUser,
+  } = useUser(walletData?.account.address);
 
   const createUserMutation = useCreateUser();
 
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingSteps, setOnboardingSteps] = useState<OnboardingStep[]>([
-    {
-      title: "Connecting Wallet",
-      description: "Setting up your Coinbase CDP wallet...",
-      status: "pending",
-      retry: () => retryStep(0),
-    },
-    {
-      title: "Creating Account",
-      description: "Setting up your account...",
-      status: "pending",
-      retry: () => retryStep(1),
-    },
-  ]);
+  const onboard = async () => {
+    if (!session || !walletData?.account?.address || isUserLoading) return;
 
-  // Effect to handle the onboarding flow
-  useEffect(() => {
-    if (session?.user && !isUserLoading) {
-      if (!existingUser) {
-        setShowOnboarding(true);
-        // If we have wallet data but no user, trigger user creation
-        if (walletData && !createUserMutation.isPending) {
-          retryStep(1);
-        }
-      } else {
-        setShowOnboarding(false); // Close modal if user exists
-        toast.success("Profile connected successfully!");
-      }
-    }
-  }, [
-    session,
-    existingUser,
-    isUserLoading,
-    walletData,
-    createUserMutation.isPending,
-  ]);
+    setShowOnboarding(true);
+    setOnboardingSteps((steps) =>
+      steps.map((s, i) => (i === 0 ? { ...s, status: "loading" } : s))
+    );
 
-  const retryStep = async (stepIndex: number) => {
     try {
-      setOnboardingSteps((prev) =>
-        prev.map((step, index) =>
-          index === stepIndex ? { ...step, status: "loading" } : step
-        )
+      setOnboardingSteps((steps) =>
+        steps.map((s, i) => (i === 0 ? { ...s, status: "completed" } : s))
       );
 
-      if (stepIndex === 0) {
-        // Step 1: Fetch wallet
-        await refetchWallet();
-      } else if (stepIndex === 1) {
-        if (!walletData) {
-          throw new Error("Failed to fetch wallet data");
-        }
+      setOnboardingSteps((steps) =>
+        steps.map((s, i) => (i === 1 ? { ...s, status: "loading" } : s))
+      );
 
-        if (!session?.user?.id) {
-          throw new Error("User ID is required");
-        }
-
-        // Create user with wallet data
+      if (!existingUser) {
         await createUserMutation.mutateAsync({
           userId: session.user.id,
-          name: session.user.name || undefined,
-          email: session.user.email || undefined,
           walletAddress: walletData.account.address,
-          profilePicUrl: session.user.image || undefined,
+          email: session.user?.email,
+          name: session.user?.name,
         });
-
-        // Update step status
-        setOnboardingSteps((prev) =>
-          prev.map((step, index) =>
-            index === 1 ? { ...step, status: "completed" } : step
-          )
-        );
-
-        // Close modal and show success message
-        setShowOnboarding(false);
-        toast.success("Profile connected successfully!");
       }
-    } catch (error) {
-      console.error("Error in step:", stepIndex, error);
-      setOnboardingSteps((prev) =>
-        prev.map((step, index) =>
-          index === stepIndex ? { ...step, status: "error" } : step
-        )
+
+      await refetchUser();
+
+      setOnboardingSteps((steps) =>
+        steps.map((s, i) => (i === 1 ? { ...s, status: "completed" } : s))
       );
-      toast.error(error instanceof Error ? error.message : "An error occurred");
+
+      toast.success("User onboarded successfully");
+    } catch (err) {
+      console.error("Onboarding failed", err);
+      toast.error("Failed to onboard user");
+      setOnboardingSteps((steps) =>
+        steps.map((s, i) => (i === 1 ? { ...s, status: "error" } : s))
+      );
     }
   };
+
+  useEffect(() => {
+    onboard();
+  }, [session, walletData?.account?.address, isUserLoading]);
 
   const handleDisconnect = async () => {
     try {
       await signOut({ callbackUrl: window.location.href });
-      queryClient.clear(); // Clear all queries on disconnect
+      queryClient.clear();
     } catch {
       toast.error("Failed to disconnect");
     }
   };
-
-  // Update steps based on current state
-  const updatedSteps = onboardingSteps.map((step, index) => {
-    if (index === 0) {
-      if (isWalletLoading) {
-        return { ...step, status: "loading" };
-      }
-      if (walletError) {
-        return { ...step, status: "error" };
-      }
-      if (walletData) {
-        return { ...step, status: "completed" };
-      }
-    }
-    if (index === 1) {
-      if (existingUser) {
-        return { ...step, status: "completed" };
-      }
-      if (walletData && !existingUser && !createUserMutation.isPending) {
-        return {
-          ...step,
-          status: "loading",
-          description: "Creating your new account...",
-        };
-      }
-    }
-    return step;
-  });
 
   if (status === "loading") {
     return (
@@ -263,7 +206,7 @@ const ConnectWallet = () => {
                   ? "Welcome! Creating your account"
                   : "Setting up your account"}
               </h2>
-              {updatedSteps.map((step, index) => (
+              {onboardingSteps.map((step, index) => (
                 <div key={index} className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
                     {step.status === "loading" && (
@@ -310,16 +253,12 @@ const ConnectWallet = () => {
                   <div className="flex-1">
                     <h3 className="font-medium">{step.title}</h3>
                     <p className="text-sm text-gray-500">{step.description}</p>
-                    {step.status === "error" && step.retry && (
-                      <Button
-                        variant="default"
-                        size="lg"
-                        onClick={() => step.retry?.()}
-                        className="mt-4 text-sm font-medium"
-                      >
-                        Retry
-                      </Button>
-                    )}
+                    {step.status === "error" &&
+                      index === onboardingSteps.length - 1 && (
+                        <Button size="sm" className="mt-2" onClick={onboard}>
+                          Retry
+                        </Button>
+                      )}
                   </div>
                 </div>
               ))}

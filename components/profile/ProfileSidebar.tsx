@@ -1,11 +1,12 @@
 import React, { FC } from "react";
-import { useProfile } from "@/context/ProfileContext";
 import Image from "next/image";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoQrCodeOutline } from "react-icons/io5";
 import { FaWallet } from "react-icons/fa6";
-import { signOut } from "next-auth/react";
+
 import { MdLogout } from "react-icons/md";
+import { useGlobalContext } from "@/context/GlobalContext";
+import { FaUserGroup } from "react-icons/fa6";
 
 type ProfileSidebarProps = {
   name?: string | null;
@@ -14,7 +15,7 @@ type ProfileSidebarProps = {
 };
 
 const ProfileSidebar: FC<ProfileSidebarProps> = ({ image, name, email }) => {
-  const { activeTab, setActiveTab } = useProfile();
+  const { activeTab, setActiveTab } = useGlobalContext();
 
   const truncateEmail = (email: string) => {
     if (!email) return "Not signed in";
@@ -71,6 +72,18 @@ const ProfileSidebar: FC<ProfileSidebarProps> = ({ image, name, email }) => {
           </button>
 
           <button
+            onClick={() => setActiveTab("myGroups")}
+            className={`flex gap-2 items-center w-full px-4 py-3 rounded-lg transition-colors ${
+              activeTab === "myGroups"
+                ? "bg-indigo-50 text-indigo-600"
+                : "text-gray-600 hover:bg-gray-100"
+            } cursor-pointer whitespace-nowrap`}
+          >
+            <FaUserGroup />
+            Groups Created
+          </button>
+
+          <button
             onClick={() => setActiveTab("myWallet")}
             className={`flex gap-2 items-center w-full px-4 py-3 rounded-lg transition-colors ${
               activeTab === "myWallet"
@@ -95,7 +108,8 @@ const ProfileSidebar: FC<ProfileSidebarProps> = ({ image, name, email }) => {
           </button>
 
           <button
-            onClick={() => signOut()}
+            // onClick={() => signOut()}
+            onClick={() => setActiveTab("logout")}
             className={`flex gap-2 items-center w-full px-4 py-3 rounded-lg transition-colors ${
               activeTab === "logout"
                 ? "bg-indigo-50 text-indigo-600"

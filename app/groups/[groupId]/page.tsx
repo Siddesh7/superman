@@ -3,7 +3,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useJoinGroup } from "@/lib/hooks/useJoinGroup";
 import { Group } from "@/types/groups";
 import { Button } from "@/components/ui/button";
@@ -37,14 +37,20 @@ export default function GroupDetailsPage({
     const fetchGroup = async () => {
       try {
         const response = await fetch(`/api/group/${resolvedParams.groupId}`);
-        if (!response.ok) {
-          throw new Error("Group not found");
-        }
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || data.error || "Failed to load group");
+        }
+
         setGroup(data);
       } catch (error) {
         console.error("Failed to load group:", error);
-        setError("Failed to load group details");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load group details"
+        );
       } finally {
         setLoading(false);
       }
@@ -55,7 +61,8 @@ export default function GroupDetailsPage({
 
   const handleJoin = async () => {
     if (!session?.user) {
-      router.push("/auth/signin");
+      const callbackUrl = `/groups/${resolvedParams.groupId}`;
+      await signIn("google", { callbackUrl });
       return;
     }
 
@@ -65,7 +72,9 @@ export default function GroupDetailsPage({
       router.push("/groups");
     } catch (error) {
       console.error("Failed to join group:", error);
-      toast.error("Failed to join group");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to join group"
+      );
     }
   };
 
@@ -94,12 +103,13 @@ export default function GroupDetailsPage({
   if (error || !group) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-sm max-w-md">
           <div className="text-red-500 text-4xl mb-4">⚠️</div>
-          <p className="text-gray-600">{error || "Group not found"}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
+          <p className="text-gray-600 mb-6">{error || "Group not found"}</p>
           <Button
             onClick={() => router.push("/groups")}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             Back to Groups
           </Button>
@@ -173,7 +183,7 @@ export default function GroupDetailsPage({
                   <div className="flex items-center">
                     <Users className="w-5 h-5 mr-3 text-blue-500" />
                     <div>
-                      <p className="text-sm text-gray-500">Max Members</p>
+                      <p className="text-sm text-gray-500">Members</p>
                       <p className="font-semibold text-lg text-gray-900">
                         {group.joinedCount} / {group.max_members}
                       </p>

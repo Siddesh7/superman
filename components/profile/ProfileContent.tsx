@@ -1,12 +1,14 @@
 import React from "react";
 import ProfileHeader from "./ProfileHeader";
 import DashboardContent from "./DashboardContent";
-import { useProfile } from "@/context/ProfileContext";
 import { UserData } from "@/types/profile";
 import { Group } from "@/types/groups";
 import MyWalletContent from "./MyWalletContent";
 import { WalletData } from "@/types/wallet";
 import DayPassesContent from "./DayPassesContent";
+import { useGlobalContext } from "@/context/GlobalContext";
+import GroupsCreatedContent from "./GroupsCreatedContent";
+import LogoutContent from "./LogoutContent";
 
 const isGroupActive = (group: Group): boolean => {
   return group.status === "pending" || group.status === "funded";
@@ -23,7 +25,7 @@ const ProfileContent = ({
   existingUser: UserData;
   walletData: WalletData;
 }) => {
-  const { activeTab } = useProfile();
+  const { activeTab } = useGlobalContext();
 
   const activeGroupsList = getActiveGroups(existingUser.joinedGroups);
 
@@ -37,8 +39,12 @@ const ProfileContent = ({
         />
       )}
 
+      {activeTab === "myGroups" && (
+        <GroupsCreatedContent createdGroups={existingUser.createdGroups} />
+      )}
       {activeTab === "myWallet" && <MyWalletContent walletData={walletData} />}
       {activeTab === "dayPasses" && <DayPassesContent />}
+      {activeTab === "logout" && <LogoutContent />}
     </>
   );
 };

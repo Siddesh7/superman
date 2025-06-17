@@ -1,9 +1,9 @@
-import { useProfile } from "@/context/ProfileContext";
+import { useGlobalContext } from "@/context/GlobalContext";
 import { Link } from "lucide-react";
 import React from "react";
 
 const ProfileHeader = () => {
-  const { activeTab, setShowJoinGroupModal } = useProfile();
+  const { activeTab, setShowJoinGroupModal } = useGlobalContext();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
@@ -11,8 +11,10 @@ const ProfileHeader = () => {
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">
             {activeTab === "dashboard" && "Dashboard"}
+            {activeTab === "myGroups" && "Groups Created"}
             {activeTab === "myWallet" && "My Wallet"}
             {activeTab === "dayPasses" && "Day Passes"}
+            {activeTab === "logout" && "Log Out"}
           </h1>
 
           <p className="text-gray-500">

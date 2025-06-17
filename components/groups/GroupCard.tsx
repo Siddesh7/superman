@@ -3,9 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, DollarSign, Users, Package, Share2 } from "lucide-react";
 import { Group } from "@/types/groups";
-import { useProfile } from "@/context/ProfileContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 interface GroupCardProps {
   group: Group;
@@ -28,7 +28,7 @@ const statusConfig = {
 
 export function GroupCard({ group }: GroupCardProps) {
   const statusStyle = statusConfig[group.status];
-  const { setShowJoinGroupModal, setSelectedGroup } = useProfile();
+  const { setShowJoinGroupModal, setSelectedGroup } = useGlobalContext();
   const router = useRouter();
 
   const handleJoinClick = () => {
@@ -86,9 +86,9 @@ export function GroupCard({ group }: GroupCardProps) {
           <div className="flex items-center text-sm">
             <Users className="w-4 h-4 mr-2 text-blue-500" />
             <div>
-              <p className="text-gray-500">Max Members</p>
+              <p className="text-gray-500">Members</p>
               <p className="font-semibold text-gray-900 dark:text-gray-300">
-                {group.max_members}
+                {group.joinedCount} /{group.max_members}
               </p>
             </div>
           </div>

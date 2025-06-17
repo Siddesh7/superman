@@ -10,13 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Group } from "@/types/groups";
-import { useProfile } from "@/context/ProfileContext";
 import { GroupCard } from "./GroupCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGroups } from "@/lib/hooks/useGroups";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const GroupsComponent = () => {
-  const { setShowCreateGroupModal } = useProfile();
+  const { setShowCreateGroupModal } = useGlobalContext();
   const { data: groups = [], isLoading, error } = useGroups();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -168,7 +168,7 @@ const renderGroupGrid = (groups: Group[], emptyMessage: string) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {groups.map((group) => (
         <GroupCard key={group.id} group={group} />
       ))}

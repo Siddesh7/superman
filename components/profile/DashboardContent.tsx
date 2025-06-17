@@ -51,10 +51,7 @@ const DashboardContent = ({
 
       <div className=" gap-6">
         <div className="lg:col-span-2">
-          <MyGroupsContent
-            createdGroups={existingUser.createdGroups}
-            joinedGroups={existingUser.joinedGroups}
-          />
+          <MyGroupsContent joinedGroups={existingUser.joinedGroups} />
         </div>
       </div>
     </div>

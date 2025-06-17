@@ -4,6 +4,11 @@ interface JoinGroupParams {
     group_id: string;
 }
 
+interface ErrorResponse {
+    message: string;
+    error?: string;
+}
+
 export function useJoinGroup() {
     const queryClient = useQueryClient();
 
@@ -17,11 +22,14 @@ export function useJoinGroup() {
                 body: JSON.stringify(params),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error("Failed to join group");
+                const errorData = data as ErrorResponse;
+                throw new Error(errorData.message || errorData.error || "Failed to join group");
             }
 
-            return response.json();
+            return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['groups'] });

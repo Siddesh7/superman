@@ -1,12 +1,12 @@
-import { useProfile } from "@/context/ProfileContext";
 import { useCreateGroup } from "@/lib/hooks/useCreateGroup";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { X } from "lucide-react";
 import React from "react";
 import { useSession } from "next-auth/react";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const CreateGroupModal = () => {
-  const { setShowCreateGroupModal } = useProfile();
+  const { setShowCreateGroupModal } = useGlobalContext();
   const { data: session } = useSession();
   const createGroup = useCreateGroup();
   const { data: walletData } = useWallet(session?.user?.id);

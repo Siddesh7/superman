@@ -29,7 +29,7 @@ export async function GET() {
 
         console.log("Account", account,);
         const balance = await account.listTokenBalances({
-            network: 'base'
+            network: 'base-sepolia'
         })
 
         console.log("balance", balance);

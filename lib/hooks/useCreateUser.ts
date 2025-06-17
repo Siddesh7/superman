@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface CreateUserParams {
     userId: string;
-    name?: string;
-    email?: string;
+    name?: string | null;
+    email?: string | null;
     walletAddress: string;
     profilePicUrl?: string;
 }
