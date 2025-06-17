@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
-import { useJoinGroup } from "@/lib/hooks/useJoinGroup";
-import { Group } from "@/types/groups";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Group } from "@/types/groups";
 import {
   DollarSign,
   Users,
@@ -17,57 +16,52 @@ import {
   ArrowLeft,
   UserPlus,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useJoinGroup } from "@/lib/hooks/useJoinGroup";
+import { useSession, signIn } from "next-auth/react";
 
-export default function GroupDetailsPage({
-  params,
-}: {
-  params: Promise<{ groupId: string }>;
-}) {
-  const resolvedParams = React.use(params);
+const JoinGroupPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const joinGroup = useJoinGroup();
+  const [groupId, setGroupId] = useState("");
   const [group, setGroup] = useState<Group | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const response = await fetch(`/api/group/${resolvedParams.groupId}`);
-        const data = await response.json();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        if (!response.ok) {
-          throw new Error(data.message || data.error || "Failed to load group");
-        }
+    try {
+      const response = await fetch(`/api/group/${groupId}`);
+      const data = await response.json();
 
-        setGroup(data);
-      } catch (error) {
-        console.error("Failed to load group:", error);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load group details"
-        );
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "Failed to load group");
       }
-    };
 
-    fetchGroup();
-  }, [resolvedParams.groupId]);
+      setGroup(data);
+    } catch (error) {
+      console.error("Failed to load group:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to load group details"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleJoin = async () => {
     if (!session?.user) {
-      const callbackUrl = `/groups/${resolvedParams.groupId}`;
+      const callbackUrl = `/joinGroup`;
       await signIn("google", { callbackUrl });
       return;
     }
 
     try {
-      await joinGroup.mutateAsync({ group_id: resolvedParams.groupId });
+      await joinGroup.mutateAsync({ group_id: groupId });
       toast.success("Successfully joined the group!");
       router.push("/groups");
     } catch (error) {
@@ -79,7 +73,7 @@ export default function GroupDetailsPage({
   };
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/groups/${resolvedParams.groupId}`;
+    const shareUrl = `${window.location.origin}/groups/${groupId}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Group link copied to clipboard!");
@@ -88,35 +82,6 @@ export default function GroupDetailsPage({
       toast.error("Failed to copy link");
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading group details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !group) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-6 bg-white rounded-lg shadow-sm max-w-md">
-          <div className="text-red-500 text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
-          <p className="text-gray-600 mb-6">{error || "Group not found"}</p>
-          <Button
-            onClick={() => router.push("/groups")}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Back to Groups
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const statusConfig = {
     pending: {
@@ -133,21 +98,40 @@ export default function GroupDetailsPage({
     },
   };
 
-  const statusStyle = statusConfig[group.status];
-
   return (
-    <div className="min-h-screen profile-gradient py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen glass profile-gradient py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <Button
-          variant="outline"
-          className="mb-6 -ml-4"
-          onClick={() => router.push("/groups")}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Groups
-        </Button>
+        <Card className="mb-8 glass group-gradient">
+          <CardHeader>
+            <CardTitle>Join a Group</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Enter Group ID"
+                  value={groupId}
+                  onChange={(e) => setGroupId(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Loading..." : "Find Group"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <div className="grid gap-6">
+        {error && (
+          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        )}
+
+        {group && (
           <Card className="group-gradient">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -156,9 +140,9 @@ export default function GroupDetailsPage({
                 </CardTitle>
                 <Badge
                   variant="secondary"
-                  className={`${statusStyle.color} font-medium`}
+                  className={`${statusConfig[group.status].color} font-medium`}
                 >
-                  {statusStyle.label}
+                  {statusConfig[group.status].label}
                 </Badge>
               </div>
             </CardHeader>
@@ -239,8 +223,10 @@ export default function GroupDetailsPage({
               </div>
             </CardContent>
           </Card>
-        </div>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default JoinGroupPage;

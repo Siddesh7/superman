@@ -1,6 +1,7 @@
 import { InfoIcon, Ticket } from "lucide-react";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
 interface GroupMember {
   id: string;
@@ -46,11 +47,11 @@ const MyGroupCard: React.FC<MyGroupCardProps> = ({ group }) => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
-        return "bg-green-400 text-green-800";
+        return "bg-green-400 dark:bg-green-500 text-green-800 dark:text-green-100";
       case "pending":
-        return "bg-yellow-400 text-yellow-800";
+        return "bg-yellow-400 dark:bg-yellow-500 text-yellow-800 dark:text-yellow-100";
       default:
-        return "bg-gray-400 text-gray-800";
+        return "bg-gray-400 dark:bg-gray-500 text-gray-800 dark:text-gray-100";
     }
   };
 
@@ -59,62 +60,77 @@ const MyGroupCard: React.FC<MyGroupCardProps> = ({ group }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 text-white">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg">{group.purchase_item}</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 p-3 sm:p-4 text-white">
+        <div className="flex justify-between  sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+          <div>
+            <h3 className="font-semibold text-base sm:text-lg">
+              {group.purchase_item}
+            </h3>
+            <p className="text-blue-100 dark:text-blue-200 text-xs sm:text-sm">
+              {group.name}
+            </p>
+          </div>
           <span
             className={`${getStatusColor(
               group.status
-            )} text-xs font-medium px-2.5 py-0.5 rounded-full`}
+            )} text-xs font-medium px-2.5 py-0.5 rounded-full self-start sm:self-auto`}
           >
             {group.status.charAt(0).toUpperCase() + group.status.slice(1)}
           </span>
         </div>
-        <p className="text-indigo-100 text-sm">{group.name}</p>
       </div>
 
-      <div className="p-6">
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Target Amount</p>
-            <p className="font-semibold text-gray-800">
+      <div className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-gray-50 dark:bg-gray-700 p-2.5 sm:p-3 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Target Amount
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base">
               {formatCurrency(group.target_amount)}
             </p>
           </div>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Created By</p>
-            <p className="font-semibold text-gray-800 truncate">
+          <div className="bg-gray-50 dark:bg-gray-700 p-2.5 sm:p-3 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Created By
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base truncate">
               {group.created_by.slice(0, 6)}...
               {group.created_by.slice(-4)}
             </p>
           </div>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Start Date</p>
-            <p className="font-semibold text-gray-800">
+          <div className="bg-gray-50 dark:bg-gray-700 p-2.5 sm:p-3 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Start Date
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base">
               {formatDate(group.created_at)}
             </p>
           </div>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Max members</p>
-            <p className="font-semibold text-gray-800 truncate">
+          <div className="bg-gray-50 dark:bg-gray-700 p-2.5 sm:p-3 rounded-lg">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Max members
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm sm:text-base truncate">
               {group.max_members}
             </p>
           </div>
         </div>
 
-        <div className="flex justify-between">
-          <button className="flex gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap">
-            <Ticket />
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-between">
+          <Button className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white px-4 py-2.5 rounded-button transition-colors cursor-pointer whitespace-nowrap text-sm sm:text-base">
+            <Ticket className="w-4 h-4 sm:w-5 sm:h-5" />
             Get Day Pass
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="outline"
             onClick={handleViewDetails}
-            className="flex gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap"
+            className="flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 px-4 py-2.5 rounded-button transition-colors cursor-pointer whitespace-nowrap text-sm sm:text-base"
           >
-            <InfoIcon />
+            <InfoIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             View Details
-          </button>
+          </Button>
         </div>
       </div>
     </div>

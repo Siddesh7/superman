@@ -52,7 +52,7 @@ export function GroupCard({ group }: GroupCardProps) {
   };
 
   return (
-    <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-0 shadow-md">
+    <Card className="glass border-white/20 animate-scale-in h-full transition-all duration-200 group-gradient">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-200 truncate">

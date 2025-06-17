@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/site-header";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import Provider from "./Providers";
 import { Toaster } from "@/components/ui/sonner";
+import BottomNavWrapper from "@/components/BottomNavWrapper";
+import ChatTerminal from "@/components/ChatTerminal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,16 +53,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Provider>
-            <div className="relative flex min-h-screen flex-col">
+        <Provider>
+          <div className="relative flex min-h-screen flex-col">
+            <div className="hidden lg:block">
               <SiteHeader />
-              <div className="flex-1">{children}</div>
             </div>
-            <TailwindIndicator />
-            <Toaster />
-          </Provider>
-        </ThemeProvider>
+            <div className="flex-1 lg:pb-0 pb-16">{children}</div>
+            <BottomNavWrapper />
+            <div className="hidden lg:block">
+              <ChatTerminal />
+            </div>
+          </div>
+          <TailwindIndicator />
+          <Toaster />
+        </Provider>
       </body>
     </html>
   );

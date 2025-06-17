@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { InfoIcon, Rocket } from "lucide-react";
+import { InfoIcon, Rocket, Video } from "lucide-react";
 
 const HeaderSection = () => {
   return (
@@ -20,11 +20,11 @@ const HeaderSection = () => {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <button className="flex gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-button text-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg cursor-pointer whitespace-nowrap">
                 <Rocket />
-                Get Started
+                Launch App
               </button>
               <button className="flex gap-2 bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-600 px-6 py-3 rounded-button text-lg font-medium transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap">
-                <InfoIcon />
-                Learn More
+                <Video />
+                Watch Demo
               </button>
             </div>
           </div>

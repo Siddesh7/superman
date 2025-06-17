@@ -6,13 +6,20 @@ import ReactQueryProvider from "@/lib/react-query";
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@/config/wagmiConfig";
 import GlobalContextProvider from "@/context/GlobalContext";
+import { ThemeProvider } from "next-themes";
 
 const Provider = ({ children }: { children: ReactNode }) => {
   return (
     <SessionProvider>
       <WagmiProvider config={wagmiConfig}>
         <ReactQueryProvider>
-          <GlobalContextProvider>{children}</GlobalContextProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            forcedTheme="dark"
+          >
+            <GlobalContextProvider>{children}</GlobalContextProvider>
+          </ThemeProvider>
         </ReactQueryProvider>
       </WagmiProvider>
     </SessionProvider>

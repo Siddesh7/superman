@@ -5,18 +5,35 @@ import ProfileSidebar from "@/components/profile/ProfileSidebar";
 import { useUser } from "@/lib/hooks/useUser";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useSession, signIn } from "next-auth/react";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ProfilePageContent = () => {
+  const router = useRouter();
   const { data: session, status } = useSession();
-  const { data: walletData, isLoading: isLoadingWalletData } = useWallet(
-    session?.user?.id
-  );
-  const { data: existingUser, isLoading: isUserLoading } = useUser(
-    walletData?.account.address
-  );
+
+  const {
+    data: walletData,
+    isLoading: isLoadingWalletData,
+    error: walletError,
+  } = useWallet(session?.user?.id);
+
+  const {
+    data: existingUser,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useUser(walletData?.account.address);
 
   const isLoading = isLoadingWalletData || isUserLoading;
+
+  // Mobile navigation state: null = sidebar, otherwise section name
+  const [mobileSection, setMobileSection] = useState<null | string>(null);
+
+  useEffect(() => {
+    if (walletError || userError) {
+      router.push("/login");
+    }
+  }, [walletError, userError, router]);
 
   if (status === "loading" || isLoading) {
     return <LoadingSection />;
@@ -26,21 +43,82 @@ const ProfilePageContent = () => {
     return <NoSession />;
   }
 
+  // Handler for sidebar section click (mobile only)
+  const handleSectionSelect = (section: string) => {
+    setMobileSection(section);
+  };
+
+  // Handler for back button (mobile only)
+  const handleBack = () => {
+    setMobileSection(null);
+  };
+
   return (
-    <div className="bg-gray-50 flex">
-      <ProfileSidebar
-        name={session.user.name}
-        image={session.user.image}
-        email={session.user.email}
-        walletData={walletData}
-      />
-      <div className="flex-1 ml-64">
-        <main className="p-8">
+    <div className="flex min-h-[calc(100vh-4rem)] border-gray-200/20 dark:border-white/20 animate-scale-in transition-all duration-200 profile-gradient">
+      <div className="hidden w-[250px] md:block">
+        <ProfileSidebar
+          name={session.user.name}
+          image={session.user.image}
+          email={session.user.email}
+          walletData={walletData}
+          onSectionSelect={handleSectionSelect}
+        />
+      </div>
+
+      {mobileSection === null && (
+        <div className="inset-0 bg-white dark:bg-gray-900 w-full block md:hidden">
+          <ProfileSidebar
+            name={session.user.name}
+            image={session.user.image}
+            email={session.user.email}
+            walletData={walletData}
+            onSectionSelect={handleSectionSelect}
+          />
+        </div>
+      )}
+
+      <div className="flex-1 ml-0 flex flex-col">
+        <main className="flex-1 p-4 md:p-8">
           {walletData && existingUser && (
-            <ProfileContent
-              existingUser={existingUser}
-              walletData={walletData}
-            />
+            <>
+              {mobileSection !== null && (
+                <div className="inset-0 z-20  w-full h-full block md:hidden">
+                  <div className="">
+                    <button
+                      onClick={handleBack}
+                      className="flex items-center gap-2 text-indigo-600 font-medium mb-4"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                      Back
+                    </button>
+                  </div>
+                  <ProfileContent
+                    existingUser={existingUser}
+                    walletData={walletData}
+                    mobileSection={mobileSection}
+                  />
+                </div>
+              )}
+
+              <div className="hidden md:block">
+                <ProfileContent
+                  existingUser={existingUser}
+                  walletData={walletData}
+                />
+              </div>
+            </>
           )}
         </main>
       </div>

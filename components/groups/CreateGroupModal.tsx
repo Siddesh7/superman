@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { useGlobalContext } from "@/context/GlobalContext";
+import { Input } from "../ui/input";
 
 const CreateGroupModal = () => {
   const { setShowCreateGroupModal } = useGlobalContext();
@@ -52,14 +53,14 @@ const CreateGroupModal = () => {
 
   return (
     <div className="fixed inset-0 bg-black/60 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 animate-fade-in-up">
-        <div className="flex items-center justify-between p-5 border-b rounded-t">
-          <h3 className="text-xl font-semibold text-gray-800">
+      <div className="relative glass profile-gradient rounded-lg shadow-xl max-w-md w-full mx-4 animate-fade-in-up">
+        <div className="flex items-center justify-between p-5 border-b dark:border-gray-700 rounded-t">
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             Create a New Group
           </h3>
           <button
             onClick={() => setShowCreateGroupModal(false)}
-            className="text-gray-400 hover:text-gray-500 cursor-pointer whitespace-nowrap"
+            className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 cursor-pointer whitespace-nowrap"
           >
             <X />
           </button>
@@ -70,16 +71,16 @@ const CreateGroupModal = () => {
             <div>
               <label
                 htmlFor="group-name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Group Name
               </label>
-              <input
+              <Input
                 type="text"
                 id="group-name"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., Fitness Club Membership"
                 required
               />
@@ -88,16 +89,16 @@ const CreateGroupModal = () => {
             <div>
               <label
                 htmlFor="target-amount"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Target Amount ($)
               </label>
-              <input
+              <Input
                 type="number"
                 id="target-amount"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., 500"
                 required
                 min="0"
@@ -108,16 +109,16 @@ const CreateGroupModal = () => {
             <div>
               <label
                 htmlFor="max-members"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Maximum Members
               </label>
-              <input
+              <Input
                 type="number"
                 id="max-members"
                 value={maxMembers}
                 onChange={(e) => setMaxMembers(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., 5"
                 required
                 min="2"
@@ -127,28 +128,30 @@ const CreateGroupModal = () => {
             <div>
               <label
                 htmlFor="purchase-item"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Purchase Item
               </label>
-              <input
+              <Input
                 type="text"
                 id="purchase-item"
                 value={purchaseItem}
                 onChange={(e) => setPurchaseItem(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., Gym Membership"
                 required
               />
             </div>
 
-            <div className="bg-indigo-50 p-4 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Contribution Calculator
               </p>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Per Person:</span>
-                <span className="text-lg font-bold text-indigo-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Per Person:
+                </span>
+                <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
                   $
                   {targetAmount && maxMembers
                     ? (parseFloat(targetAmount) / parseInt(maxMembers)).toFixed(
@@ -160,18 +163,18 @@ const CreateGroupModal = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-end p-6 border-t border-gray-200 rounded-b space-x-3">
+          <div className="flex items-center justify-end p-6 border-t border-gray-200 dark:border-gray-700 rounded-b space-x-3">
             <button
               type="button"
               onClick={() => setShowCreateGroupModal(false)}
-              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap"
+              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createGroup.isPending}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {createGroup.isPending ? "Creating..." : "Create Group"}
             </button>

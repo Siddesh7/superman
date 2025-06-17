@@ -21,31 +21,35 @@ const getActiveGroups = (groups: Group[]): Group[] => {
 const ProfileContent = ({
   existingUser,
   walletData,
+  mobileSection,
 }: {
   existingUser: UserData;
   walletData: WalletData;
+  mobileSection?: string | null;
 }) => {
   const { activeTab } = useGlobalContext();
 
   const activeGroupsList = getActiveGroups(existingUser.joinedGroups);
 
+  const tab = mobileSection ?? activeTab;
+
   return (
-    <>
+    <div>
       <ProfileHeader />
-      {activeTab === "dashboard" && (
+      {tab === "dashboard" && (
         <DashboardContent
           existingUser={existingUser}
           activeGroups={activeGroupsList.length}
         />
       )}
 
-      {activeTab === "myGroups" && (
+      {tab === "myGroups" && (
         <GroupsCreatedContent createdGroups={existingUser.createdGroups} />
       )}
-      {activeTab === "myWallet" && <MyWalletContent walletData={walletData} />}
-      {activeTab === "dayPasses" && <DayPassesContent />}
-      {activeTab === "logout" && <LogoutContent />}
-    </>
+      {tab === "myWallet" && <MyWalletContent walletData={walletData} />}
+      {tab === "dayPasses" && <DayPassesContent />}
+      {tab === "logout" && <LogoutContent />}
+    </div>
   );
 };
 
