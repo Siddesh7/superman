@@ -3,6 +3,34 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { CdpClient } from "@coinbase/cdp-sdk";
 
+// Token constants
+const TOKENS = {
+    ETH: {
+        contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18
+    },
+    USDC: {
+        contractAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        name: 'USD Coin',
+        symbol: 'USDC',
+        decimals: 6
+    },
+    CBBTC: {
+        contractAddress: '0xcbB7C0006F23900c38EB856149F799620fcb8A4a',
+        name: 'Coinbase Wrapped BTC',
+        symbol: 'CBBTC',
+        decimals: 18
+    },
+    EURC: {
+        contractAddress: '0x808456652fdb597867f38412077A9182bf77359F',
+        name: 'EURC Coin',
+        symbol: 'EURC',
+        decimals: 6
+    }
+} as const;
+
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
@@ -27,19 +55,53 @@ export async function GET() {
             name: session.user.id, // uniquely identifies user wallet
         });
 
-        console.log("Account", account,);
-        const balance = await account.listTokenBalances({
-            network: 'base-sepolia'
+        const res = await account.requestFaucet({
+            network: "base-sepolia",
+            token: 'eurc',
         })
+        console.log("res", res);
 
-        console.log("balance", balance);
+        console.log("Account", account,);
+        const { balances } = await account.listTokenBalances({
+            network: 'base-sepolia',
+        });
+
+        console.log("balances", balances);
+
+        if (!balances || balances.length === 0) {
+            return NextResponse.json({
+                success: true,
+                data: {
+                    accountAddress: account.address,
+                    balance: 0,
+                },
+            });
+        }
+
+        // Serialize and format balances
+        const formattedBalances = balances.map(({ token, amount }) => {
+            // Find matching token from constants
+            const tokenInfo = Object.values(TOKENS).find(
+                t => t.contractAddress.toLowerCase() === token.contractAddress.toLowerCase()
+            );
+
+            return {
+                symbol: tokenInfo?.symbol || 'UNKNOWN',
+                name: tokenInfo?.name || 'Unknown Token',
+                contractAddress: token.contractAddress,
+                network: token.network,
+                amount: amount.amount.toString(),
+                humanReadable: (Number(amount.amount) / 10 ** amount.decimals).toFixed(4),
+                decimals: amount.decimals,
+            };
+        });
 
         return NextResponse.json({
             success: true,
             data: {
-                account,
-                balance
-            }
+                account: account,
+                balances: formattedBalances,
+            },
         });
 
     } catch (error) {

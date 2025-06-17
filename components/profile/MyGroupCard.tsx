@@ -1,5 +1,6 @@
 import { InfoIcon, Ticket } from "lucide-react";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 interface GroupMember {
   id: string;
@@ -25,6 +26,8 @@ interface MyGroupCardProps {
 }
 
 const MyGroupCard: React.FC<MyGroupCardProps> = ({ group }) => {
+  const router = useRouter();
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -49,6 +52,10 @@ const MyGroupCard: React.FC<MyGroupCardProps> = ({ group }) => {
       default:
         return "bg-gray-400 text-gray-800";
     }
+  };
+
+  const handleViewDetails = () => {
+    router.push(`/groups/${group.id}`);
   };
 
   return (
@@ -101,7 +108,10 @@ const MyGroupCard: React.FC<MyGroupCardProps> = ({ group }) => {
             <Ticket />
             Get Day Pass
           </button>
-          <button className="flex gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap">
+          <button
+            onClick={handleViewDetails}
+            className="flex gap-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap"
+          >
             <InfoIcon />
             View Details
           </button>

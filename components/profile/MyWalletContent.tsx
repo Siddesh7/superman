@@ -27,13 +27,31 @@ const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
         </p>
       </div>
 
-      <div className="text-center space-y-2">
-        <>
-          <div className="mt-2">
-            <p className="text-sm text-gray-500 mb-1">Your balance</p>
-            <p className="text-2xl font-bold text-blue-600">0 ETH</p>
+      <div className="text-center space-y-2 w-full">
+        <div className="mt-2">
+          <p className="text-sm text-gray-500 mb-2">Your balances</p>
+          <div className="space-y-2">
+            {walletData.balances.map((balance) => (
+              <div
+                key={balance.contractAddress}
+                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+              >
+                <div className="flex flex-col items-start">
+                  <span className="font-medium">{balance.symbol}</span>
+                  <span className="text-xs text-gray-500">{balance.name}</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="font-bold text-blue-600">
+                    {balance.humanReadable}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {balance.network}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        </>
+        </div>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow-lg">

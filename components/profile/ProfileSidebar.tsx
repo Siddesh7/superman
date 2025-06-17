@@ -7,15 +7,33 @@ import { FaWallet } from "react-icons/fa6";
 import { MdLogout } from "react-icons/md";
 import { useGlobalContext } from "@/context/GlobalContext";
 import { FaUserGroup } from "react-icons/fa6";
+import { WalletData } from "@/types/wallet";
 
 type ProfileSidebarProps = {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  walletData?: WalletData;
 };
 
-const ProfileSidebar: FC<ProfileSidebarProps> = ({ image, name, email }) => {
+const ProfileSidebar: FC<ProfileSidebarProps> = ({
+  image,
+  name,
+  email,
+  walletData,
+}) => {
   const { activeTab, setActiveTab } = useGlobalContext();
+
+  const getUSDCBalance = () => {
+    if (!walletData?.balances) return "0.000";
+
+    const usdcBalance = walletData.balances.find(
+      (balance) => balance.symbol === "USDC"
+    );
+
+    if (!usdcBalance) return "0.000";
+    return Number(usdcBalance.humanReadable).toFixed(3);
+  };
 
   const truncateEmail = (email: string) => {
     if (!email) return "Not signed in";
@@ -53,8 +71,8 @@ const ProfileSidebar: FC<ProfileSidebarProps> = ({ image, name, email }) => {
           </div>
 
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4 text-white">
-            <p className="text-sm font-medium mb-1">Wallet Balance</p>
-            <p className="text-2xl font-bold">$245.00</p>
+            <p className="text-sm font-medium mb-1">USDC Balance</p>
+            <p className="text-2xl font-bold">${getUSDCBalance()}</p>
           </div>
         </div>
 

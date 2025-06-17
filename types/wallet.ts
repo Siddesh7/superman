@@ -2,11 +2,13 @@ export type WalletData = {
     account: {
         address: string;
     };
-    balance: {
-        network: string;
-        tokens: Array<{
-            symbol: string;
-            balance: string;
-        }>;
-    };
+    balances: Array<{
+        symbol: string;
+        name: string;
+        contractAddress: `0x${string}`;
+        network: "base" | "base-sepolia";
+        amount: string;
+        humanReadable: string;
+        decimals: number;
+    }>;
 }
