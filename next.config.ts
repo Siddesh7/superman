@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ["readdy.ai", "lh3.googleusercontent.com"],
+  },
   /* config options here */
 };
 
