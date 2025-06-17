@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Superman - Gym Management PWA
 
-## Getting Started
+A Progressive Web App for gym membership management built with Next.js 15, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## 🚀 Quick Start
+
+This project uses **bun** as the package manager for fast installs and builds.
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) - JavaScript runtime & package manager
+- Node.js 18+ (for compatibility)
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+bun install
+
+# Start development server
+bun run dev
+
+# Build for production
+bun run build
+
+# Start production server
+bun run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📱 PWA Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This app is a full Progressive Web App with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- ✅ **Installable** - Can be installed on any device
+- ✅ **Offline Support** - Works without internet connection
+- ✅ **Service Worker** - Automatic caching and updates
+- ✅ **Web App Manifest** - Native app-like experience
+- ✅ **Responsive Design** - Works on desktop, tablet, and mobile
 
-## Learn More
+### PWA Testing
 
-To learn more about Next.js, take a look at the following resources:
+1. Build the production version: `bun run build`
+2. Start the production server: `bun run start`
+3. Open http://localhost:3000 in Chrome/Edge
+4. Look for the install prompt or use browser menu > "Install Superman..."
+5. Test offline by disabling network in DevTools
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Runtime**: Bun
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **UI Components**: shadcn/ui
+- **Database**: Supabase
+- **Auth**: NextAuth.js
+- **PWA**: next-pwa
 
-## Deploy on Vercel
+## 📁 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+├── app/                    # Next.js app directory
+├── components/            # Reusable UI components
+├── lib/                   # Utility functions
+├── public/               # Static assets & PWA files
+│   ├── manifest.json     # Web app manifest
+│   ├── sw.js            # Service worker (auto-generated)
+│   ├── offline.html     # Offline fallback page
+│   └── icon-*.png       # App icons
+└── vendors/              # Vendor-specific code
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔧 Environment Variables
+
+Create a `.env.local` file with:
+
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_key
+```
+
+## 📱 PWA Installation Component
+
+Use the built-in install component:
+
+```tsx
+import { PWAInstall } from "@/components/pwa-install";
+
+export default function MyPage() {
+  return (
+    <div>
+      <PWAInstall />
+    </div>
+  );
+}
+```
+
+## 🎨 Customization
+
+### App Icons
+
+Replace the placeholder icons in `/public/`:
+
+- `icon-192x192.png` (192×192 pixels)
+- `icon-512x512.png` (512×512 pixels)
+
+### App Manifest
+
+Edit `/public/manifest.json` to customize:
+
+- App name and description
+- Theme colors
+- Categories
+
+### Offline Page
+
+Customize `/public/offline.html` for your brand.
+
+## 🚀 Deployment
+
+The app builds as a static PWA that can be deployed to:
+
+- Vercel (recommended for Next.js)
+- Netlify
+- Any static hosting service
+
+```bash
+bun run build
+```
+
+The build output includes:
+
+- Static pages in `.next/`
+- Service worker at `/public/sw.js`
+- Web app manifest at `/public/manifest.json`
+
+## 📖 PWA Documentation
+
+For detailed PWA setup information, see `PWA_SETUP.md`.
+
+---
+
+Built with ❤️ using Bun and Next.js
