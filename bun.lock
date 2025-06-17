@@ -6,7 +6,7 @@
       "dependencies": {
         "@coinbase/agentkit": "^0.8.2",
         "@coinbase/cdp-sdk": "^1.15.0",
-        "@langchain/langgraph": "^0.3.3",
+        "@coinbase/x402": "^0.4.0",
         "@radix-ui/react-dialog": "^1.1.14",
         "@radix-ui/react-dropdown-menu": "^2.1.15",
         "@radix-ui/react-progress": "^1.1.7",
@@ -31,6 +31,8 @@
         "tailwind-merge": "^3.3.1",
         "viem": "^2.31.3",
         "wagmi": "^2.15.6",
+        "x402-fetch": "^0.4.0",
+        "x402-next": "^0.4.0",
       },
       "devDependencies": {
         "@eslint/eslintrc": "^3",
@@ -247,6 +249,8 @@
     "@coinbase/coinbase-sdk": ["@coinbase/coinbase-sdk@0.20.0", "", { "dependencies": { "@scure/bip32": "^1.4.0", "abitype": "^1.0.6", "axios": "^1.6.8", "axios-mock-adapter": "^1.22.0", "axios-retry": "^4.4.1", "bip32": "^4.0.0", "bip39": "^3.1.0", "decimal.js": "^10.4.3", "dotenv": "^16.4.5", "ed2curve": "^0.3.0", "ethers": "^6.12.1", "jose": "^5.10.0", "secp256k1": "^5.0.0", "viem": "^2.21.26" } }, "sha512-OoMMktKbjmeEwtwQCK3kIIoX5M+hNelxAGX5Llymvw6bmyrMDaEBZ/Myga9kaLJ+7Hi5Y4jPDy4Cy2MGxxXg6w=="],
 
     "@coinbase/wallet-sdk": ["@coinbase/wallet-sdk@4.3.3", "", { "dependencies": { "@noble/hashes": "^1.4.0", "clsx": "^1.2.1", "eventemitter3": "^5.0.1", "preact": "^10.24.2" } }, "sha512-h8gMLQNvP5TIJVXFOyQZaxbi1Mg5alFR4Z2/PEIngdyXZEoQGcVhzyQGuDa3t9zpllxvqfAaKfzDhsfCo+nhSQ=="],
+
+    "@coinbase/x402": ["@coinbase/x402@0.4.0", "", { "dependencies": { "@coinbase/cdp-sdk": "^1.1.1", "viem": "^2.23.1", "x402": "^0.4.0", "zod": "^3.24.2" } }, "sha512-lJlEyU+YfDEx9yig5JckGHbddTsIImWxBEAcVU31U9nVV3HQtrcpARt+9+tkIJilkC3NMj2f6u6V4iLtnHW17A=="],
 
     "@ecies/ciphers": ["@ecies/ciphers@0.2.3", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA=="],
 
@@ -2214,9 +2218,13 @@
 
     "ws": ["ws@8.18.2", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ=="],
 
-    "x402": ["x402@0.3.7", "", { "dependencies": { "viem": "^2.23.1", "zod": "^3.24.2" } }, "sha512-8g2sXjWX7UbUNg9wJqgSBoYP7QV3/7qYYssdfPiQM5XDDThuVy7+MnH4cCuQ4UGGn2SVz1hpzWpwxMC3nwp+zA=="],
+    "x402": ["x402@0.4.0", "", { "dependencies": { "viem": "^2.23.1", "zod": "^3.24.2" } }, "sha512-CbJEpBpPim0SYFQjN9GmTMivizdBlrYbhiybZ2zfMPy5y5qilkajUCL4BYJr9sArPki8kIOCHb95WvX6yfmYpA=="],
 
     "x402-axios": ["x402-axios@0.3.3", "", { "dependencies": { "axios": "^1.7.9", "viem": "^2.23.1", "x402": "^0.3.3", "zod": "^3.24.2" } }, "sha512-WaqYBO6QCLtON6YYHoN1vCxVaWXXTDOltZnwo7VjvWc9gYoQRismONVu2VC6PK5SHad+Ha9wsJJrgL9NBF83Bg=="],
+
+    "x402-fetch": ["x402-fetch@0.4.0", "", { "dependencies": { "viem": "^2.23.1", "x402": "^0.4.0", "zod": "^3.24.2" } }, "sha512-Sl4YfJv1n161CKVd4IzzyQwsTHJkN0obFIp5mD0RVWahrqHyiAJafR9HNi9ipM287d9YPQE4EtP+I3gXnhQAyw=="],
+
+    "x402-next": ["x402-next@0.4.0", "", { "dependencies": { "next": "^15.2.4", "viem": "^2.23.1", "x402": "^0.4.0", "zod": "^3.24.2" } }, "sha512-LKqL6kKm2CZohrwmsIkY3H7SGIv/oovB2FI/92heUS35d5bwR/YR5YR2tk3xw/25VeYdMWh1gcpY0Nnxk9NyKg=="],
 
     "xmlhttprequest-ssl": ["xmlhttprequest-ssl@2.1.2", "", {}, "sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ=="],
 
@@ -2559,6 +2567,8 @@
     "workbox-build/ajv": ["ajv@8.17.1", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
 
     "workbox-build/source-map": ["source-map@0.8.0-beta.0", "", { "dependencies": { "whatwg-url": "^7.0.0" } }, "sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA=="],
+
+    "x402-axios/x402": ["x402@0.3.7", "", { "dependencies": { "viem": "^2.23.1", "zod": "^3.24.2" } }, "sha512-8g2sXjWX7UbUNg9wJqgSBoYP7QV3/7qYYssdfPiQM5XDDThuVy7+MnH4cCuQ4UGGn2SVz1hpzWpwxMC3nwp+zA=="],
 
     "yargs/find-up": ["find-up@4.1.0", "", { "dependencies": { "locate-path": "^5.0.0", "path-exists": "^4.0.0" } }, "sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw=="],
 
