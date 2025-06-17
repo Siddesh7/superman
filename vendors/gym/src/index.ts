@@ -38,8 +38,25 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (handle serverless connection)
+let isConnected = false;
+const connectToDatabase = async () => {
+  if (isConnected) {
+    return;
+  }
+  try {
+    await connectDB();
+    isConnected = true;
+  } catch (error) {
+    console.error("Database connection error:", error);
+  }
+};
+
+// Middleware to ensure database connection
+app.use(async (req, res, next) => {
+  await connectToDatabase();
+  next();
+});
 
 interface BuyMembershipRequest {
   buyerAddresses: string[];
@@ -211,6 +228,7 @@ app.post(
       const { membershipId } = req.body;
       const clientIp = req.ip || req.connection.remoteAddress;
 
+      // Validate membership ID
       if (!membershipId) {
         return res.status(400).json({
           status: "error",
@@ -228,25 +246,19 @@ app.post(
         });
       }
 
-      // Check if membership is valid (active, payment verified, within date range)
-      const now = new Date();
-      const isValid =
-        membership.isActive &&
-        membership.paymentVerified &&
-        now >= membership.startDate &&
-        now <= membership.endDate;
-
-      if (!isValid) {
+      if (!membership.isActive || !membership.paymentVerified) {
         return res.status(400).json({
           status: "error",
-          message: "Membership is not valid or has expired",
-          membershipDetails: {
-            isActive: membership.isActive,
-            paymentVerified: membership.paymentVerified,
-            startDate: membership.startDate,
-            endDate: membership.endDate,
-            currentDate: now,
-          },
+          message: "Membership is not active or payment not verified",
+        });
+      }
+
+      // Check if membership is currently valid (within date range)
+      const now = new Date();
+      if (now < membership.startDate || now > membership.endDate) {
+        return res.status(400).json({
+          status: "error",
+          message: "Membership is not currently valid",
         });
       }
 
@@ -258,12 +270,10 @@ app.post(
       const qrData = JSON.stringify({
         passId,
         membershipId,
-        issuedDate: now.toISOString(),
         validUntil: validUntil.toISOString(),
-        gym: "GYM-MEMBERSHIP-SYSTEM",
+        type: "day-pass",
       });
 
-      // Generate QR code as base64 string
       const qrCodeDataUrl = await QRCode.toDataURL(qrData, {
         width: 256,
         margin: 2,
@@ -458,8 +468,14 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(
-    `🏋️ Gym Membership Server is running on http://localhost:${port}`
-  );
-});
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(
+      `🏋️ Gym Membership Server is running on http://localhost:${port}`
+    );
+  });
+}
+
+// Export for Vercel
+export default app;

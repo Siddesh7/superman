@@ -2,16 +2,24 @@
   "name": "gym-membership-server",
   "version": "1.0.0",
   "description": "Express server for gym membership management with x402 payments",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "bun run --watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "client": "tsx src/client.ts",
-    "db:seed": "tsx src/scripts/seed.ts",
-    "db:clear": "tsx src/scripts/clear.ts"
+    "vercel-build": "tsc",
+    "client": "bun run src/client.ts",
+    "db:seed": "bun run src/scripts/seed.ts",
+    "db:clear": "bun run src/scripts/clear.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "gym",
+    "membership",
+    "x402",
+    "payments",
+    "express",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -29,9 +37,12 @@
     "@types/express": "^4.17.21",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^20.11.19",
+    "@vercel/node": "^3.0.0",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.4",
     "typescript": "^5.3.3"
   },
-  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
