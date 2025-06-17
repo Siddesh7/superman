@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Request, Response } from "express";
+import path from "path";
+import fs from "fs";
 import { paymentMiddleware } from "x402-express";
 import QRCode from "qrcode";
 import { connectDB } from "./config/database";
@@ -133,6 +135,56 @@ function calculateDuration(startDate: Date, endDate: Date): number {
   const timeDiff = endDate.getTime() - startDate.getTime();
   return Math.ceil(timeDiff / (1000 * 3600 * 24));
 }
+
+// Serve the API tester HTML page
+app.get("/test", (req: Request, res: Response) => {
+  try {
+    const htmlPath = path.join(__dirname, "../index.html");
+
+    // Check if we're in development or production
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      // For production, serve the HTML content directly
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>API Tester - Unavailable</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                .container { max-width: 600px; margin: 0 auto; }
+                .error { background: #f8d7da; color: #721c24; padding: 20px; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>API Tester Unavailable</h1>
+                <div class="error">
+                    <p>The API testing interface is not available in this environment.</p>
+                    <p>Please access the API endpoints directly using curl or your preferred HTTP client.</p>
+                </div>
+                <h2>Available Endpoints:</h2>
+                <ul style="text-align: left;">
+                    <li>GET / - Welcome message</li>
+                    <li>POST /buy-membership - Purchase membership (Protected)</li>
+                    <li>POST /generate-day-pass - Generate day pass (Protected)</li>
+                    <li>GET /get-membership-details/:id - Get membership info</li>
+                    <li>GET /memberships/history - Admin: membership history</li>
+                    <li>GET /day-passes/history - Admin: day pass history</li>
+                </ul>
+            </div>
+        </body>
+        </html>
+      `);
+    }
+  } catch (error) {
+    console.error("Error serving test page:", error);
+    res.status(500).json({ error: "Failed to serve test page" });
+  }
+});
 
 app.post(
   "/buy-membership",
@@ -451,6 +503,7 @@ app.get("/", (req: Request, res: Response) => {
   res.json({
     message: "Welcome to Gym Membership System!",
     endpoints: {
+      "GET /test": "API Testing Interface (Web UI)",
       "POST /buy-membership":
         "Purchase a gym membership (protected by x402 - $0.0123)",
       "POST /generate-day-pass":

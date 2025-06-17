@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/tester",
+      "dest": "/public/tester.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "src/index.ts"
     }
