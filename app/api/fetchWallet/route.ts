@@ -61,7 +61,7 @@ export async function GET() {
             return NextResponse.json({
                 success: true,
                 data: {
-                    accountAddress: account.address,
+                    account: account,
                     balance: 0,
                 },
             });

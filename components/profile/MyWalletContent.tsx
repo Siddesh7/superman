@@ -4,6 +4,8 @@ import { copyToClipboard, formatWalletAddress } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { parseUnits } from "viem";
+import { Button } from "../ui/button";
 
 const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
   const address = walletData.account.address;
@@ -18,6 +20,26 @@ const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
     }
   };
 
+  const sendToAgent = async () => {
+    try {
+      console.log("Sending");
+
+      const response = await fetch("/api/transfer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientWallet: "0x999F186CDA2B78dD59FFEbE5AA994EEA0B025Dcb",
+          amount: "1",
+        }),
+      });
+      console.log("Response", response);
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-4 p-4">
       <div className="text-center space-y-2">
@@ -26,6 +48,8 @@ const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
           Scan this QR code to send funds to your wallet
         </p>
       </div>
+
+      <Button onClick={sendToAgent}>Send Funds</Button>
 
       <div className="text-center space-y-2 w-full">
         <div className="mt-2">

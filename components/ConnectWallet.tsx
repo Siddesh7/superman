@@ -51,6 +51,8 @@ const ConnectWallet = () => {
     refetch: refetchWallet,
   } = useWallet(session?.user?.id);
 
+  console.log("WalletData", walletData);
+
   const {
     data: existingUser,
     isLoading: isUserLoading,
