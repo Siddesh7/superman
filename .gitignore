@@ -8,6 +8,9 @@
 
 # vendor dependencies
 vendors/*/node_modules
+vendors/*/dist
+vendors/*/.vercel
+vendors/*/build
 
 # testing
 /coverage

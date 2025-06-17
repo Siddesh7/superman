@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["readdy.ai", "lh3.googleusercontent.com"],
   },
+  webpack: (config, { isServer }) => {
+    // Exclude vendors directory from webpack build
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: /vendors/,
+    };
+    return config;
+  },
   /* config options here */
 };
 

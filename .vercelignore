@@ -1,0 +1,2 @@
+# Exclude vendors directory from root build
+vendors/ 
