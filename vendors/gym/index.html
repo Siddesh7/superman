@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gym Membership System - API Tester</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fafafa;
+      }
+      .section h3 {
+        margin-top: 0;
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+      button {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      button.protected {
+        background-color: #e74c3c;
+      }
+      button.protected:hover {
+        background-color: #c0392b;
+      }
+      .response {
+        margin-top: 15px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        white-space: pre-wrap;
+        font-family: monospace;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+      }
+      .response.show {
+        display: block;
+      }
+      .error {
+        background-color: #ffebee;
+        border-color: #e74c3c;
+        color: #c0392b;
+      }
+      .success {
+        background-color: #e8f5e8;
+        border-color: #27ae60;
+        color: #27ae60;
+      }
+      .config-section {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+      .config-section h3 {
+        color: #856404;
+        border-bottom: 2px solid #ffeaa7;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+      .flex-inputs {
+        display: flex;
+        gap: 10px;
+      }
+      .flex-inputs > div {
+        flex: 1;
+      }
+      .endpoint-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+      .protected-status {
+        background-color: #e74c3c;
+        color: white;
+      }
+      .free-status {
+        background-color: #27ae60;
+        color: white;
+      }
+      small {
+        color: #7f8c8d;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏋️ Gym Membership System - API Tester</h1>
+
+      <!-- Configuration Section -->
+      <div class="config-section">
+        <h3>⚙️ Configuration</h3>
+        <div class="warning">
+          <strong>⚠️ Warning:</strong> Never use real private keys in
+          production. This is for testing only!
+        </div>
+        <div class="form-group">
+          <label for="privateKey">Private Key (for x402 payments):</label>
+          <input type="password" id="privateKey" placeholder="0x..." />
+          <small
+            >Required for protected endpoints (buy-membership,
+            generate-day-pass)</small
+          >
+        </div>
+        <div class="form-group">
+          <label for="serverUrl">Server URL:</label>
+          <input type="text" id="serverUrl" value="http://localhost:3000" />
+        </div>
+        <button onclick="testSetup()" style="background-color: #f39c12">
+          🧪 Test Setup (Check Console)
+        </button>
+        <div id="setupTestResponse" class="response"></div>
+      </div>
+
+      <!-- Welcome Endpoint -->
+      <div class="section">
+        <h3>
+          🏠 Welcome Endpoint
+          <span class="endpoint-status free-status">FREE</span>
+        </h3>
+        <button onclick="getWelcome()">GET /</button>
+        <div id="welcomeResponse" class="response"></div>
+      </div>
+
+      <!-- Buy Membership -->
+      <div class="section">
+        <h3>
+          💳 Buy Membership
+          <span class="endpoint-status protected-status"
+            >PROTECTED - $0.001</span
+          >
+        </h3>
+        <div class="form-group">
+          <label for="buyerAddresses">Buyer Addresses (comma-separated):</label>
+          <textarea
+            id="buyerAddresses"
+            rows="3"
+            placeholder="0x1234..., 0x5678..."
+          >
+0x1234567890123456789012345678901234567890, 0x2345678901234567890123456789012345678901</textarea
+          >
+        </div>
+        <div class="flex-inputs">
+          <div class="form-group">
+            <label for="startDate">Start Date:</label>
+            <input type="datetime-local" id="startDate" />
+          </div>
+          <div class="form-group">
+            <label for="endDate">End Date:</label>
+            <input type="datetime-local" id="endDate" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="purchasedBy">Purchased By:</label>
+          <input
+            type="text"
+            id="purchasedBy"
+            placeholder="0x..."
+            value="0x1234567890123456789012345678901234567890"
+          />
+        </div>
+        <button class="protected" onclick="buyMembership()">
+          POST /buy-membership (Requires Payment)
+        </button>
+        <div id="buyMembershipResponse" class="response"></div>
+      </div>
+
+      <!-- Generate Day Pass -->
+      <div class="section">
+        <h3>
+          🎫 Generate Day Pass
+          <span class="endpoint-status protected-status"
+            >PROTECTED - $0.0031</span
+          >
+        </h3>
+        <div class="form-group">
+          <label for="membershipIdForPass">Membership ID:</label>
+          <input
+            type="text"
+            id="membershipIdForPass"
+            placeholder="GYM-1234567890-ABCDEFGHI"
+          />
+        </div>
+        <button class="protected" onclick="generateDayPass()">
+          POST /generate-day-pass (Requires Payment)
+        </button>
+        <div id="generateDayPassResponse" class="response"></div>
+      </div>
+
+      <!-- Get Membership Details -->
+      <div class="section">
+        <h3>
+          📋 Get Membership Details
+          <span class="endpoint-status free-status">FREE</span>
+        </h3>
+        <div class="form-group">
+          <label for="membershipIdForDetails">Membership ID:</label>
+          <input
+            type="text"
+            id="membershipIdForDetails"
+            placeholder="GYM-1234567890-ABCDEFGHI"
+          />
+        </div>
+        <button onclick="getMembershipDetails()">
+          GET /get-membership-details/:id
+        </button>
+        <div id="membershipDetailsResponse" class="response"></div>
+      </div>
+
+      <!-- Admin Endpoints -->
+      <div class="section">
+        <h3>
+          📊 Admin Endpoints
+          <span class="endpoint-status free-status">FREE</span>
+        </h3>
+        <div class="flex-inputs">
+          <div class="form-group">
+            <label for="historyLimit">Limit:</label>
+            <input
+              type="number"
+              id="historyLimit"
+              value="10"
+              min="1"
+              max="50"
+            />
+          </div>
+          <div class="form-group">
+            <label for="historyPage">Page:</label>
+            <input type="number" id="historyPage" value="1" min="1" />
+          </div>
+        </div>
+        <button onclick="getMembershipsHistory()">
+          GET /memberships/history
+        </button>
+        <button onclick="getDayPassesHistory()">GET /day-passes/history</button>
+        <div id="adminResponse" class="response"></div>
+      </div>
+    </div>
+
+    <!-- Include the required libraries -->
+    <script type="module">
+      // Import the required libraries for x402 payments
+      import {
+        createWalletClient,
+        http,
+        parseEther,
+      } from "https://esm.sh/viem@2.21.3";
+      import { privateKeyToAccount } from "https://esm.sh/viem@2.21.3/accounts";
+      import { baseSepolia } from "https://esm.sh/viem@2.21.3/chains";
+      import {
+        wrapFetchWithPayment,
+        decodeXPaymentResponse,
+      } from "https://esm.sh/x402-fetch@0.3.3";
+
+      // Add error handling for import failures
+      console.log("📦 Libraries imported successfully!");
+      console.log("🔧 viem version:", "2.21.3");
+      console.log("🔧 x402-fetch version:", "0.3.3");
+
+      // Set default dates
+      const now = new Date();
+      const nextYear = new Date();
+      nextYear.setFullYear(now.getFullYear() + 1);
+
+      document.getElementById("startDate").value = now
+        .toISOString()
+        .slice(0, 16);
+      document.getElementById("endDate").value = nextYear
+        .toISOString()
+        .slice(0, 16);
+
+      function getServerUrl() {
+        return (
+          document.getElementById("serverUrl").value || "http://localhost:3000"
+        );
+      }
+
+      function showResponse(elementId, data, isError = false) {
+        const element = document.getElementById(elementId);
+        element.className = `response show ${isError ? "error" : "success"}`;
+        element.textContent =
+          typeof data === "object" ? JSON.stringify(data, null, 2) : data;
+      }
+
+      // Setup x402 payment client
+      async function setupPaymentClient() {
+        const privateKey = document.getElementById("privateKey").value;
+        if (!privateKey) {
+          throw new Error("Private key is required for protected endpoints");
+        }
+
+        console.log(
+          "🔑 Private key provided:",
+          privateKey.substring(0, 10) + "..."
+        );
+
+        try {
+          // Create a wallet client with the private key
+          const client = createWalletClient({
+            chain: baseSepolia,
+            transport: http(),
+            account: privateKeyToAccount(privateKey),
+          });
+
+          console.log("✅ Wallet client created successfully");
+          console.log("🏦 Address:", client.account.address);
+          console.log("🌐 Chain:", client.chain.name);
+
+          // Create payment-enabled fetch client
+          const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+          console.log("💳 Payment wrapper created successfully");
+
+          return fetchWithPayment;
+        } catch (error) {
+          console.error("❌ Error setting up payment client:", error);
+          throw new Error(`Failed to setup payment client: ${error.message}`);
+        }
+      }
+
+      // Welcome endpoint
+      window.getWelcome = async function () {
+        try {
+          const response = await fetch(`${getServerUrl()}/`);
+          const data = await response.json();
+          showResponse("welcomeResponse", data);
+        } catch (error) {
+          showResponse("welcomeResponse", `Error: ${error.message}`, true);
+        }
+      };
+
+      // Buy membership (protected) - Now with real x402 payment integration!
+      window.buyMembership = async function () {
+        try {
+          const privateKey = document.getElementById("privateKey").value;
+          if (!privateKey) {
+            throw new Error(
+              "Private key is required for protected endpoints. Add your private key above."
+            );
+          }
+
+          console.log("🔄 Setting up payment client...");
+          const fetchWithPayment = await setupPaymentClient();
+
+          const buyerAddresses = document
+            .getElementById("buyerAddresses")
+            .value.split(",")
+            .map((addr) => addr.trim())
+            .filter((addr) => addr);
+
+          const requestBody = {
+            buyerAddresses,
+            startDate: new Date(
+              document.getElementById("startDate").value
+            ).toISOString(),
+            endDate: new Date(
+              document.getElementById("endDate").value
+            ).toISOString(),
+            purchasedBy: document.getElementById("purchasedBy").value,
+          };
+
+          console.log("📋 Request body:", requestBody);
+          console.log("🌐 Server URL:", getServerUrl());
+          console.log(
+            "💳 Making payment request for membership ($0.001 USDC)..."
+          );
+
+          const response = await fetchWithPayment(
+            `${getServerUrl()}/buy-membership`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          console.log("📨 Response received:", response);
+          console.log("📨 Response status:", response.status);
+          console.log("📨 Response headers:", [...response.headers.entries()]);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("✅ Membership purchase successful:", data);
+
+          // Check for payment details in the response header
+          const paymentHeader = response.headers.get("x-payment-response");
+          if (paymentHeader) {
+            try {
+              const decodedPayment = decodeXPaymentResponse(paymentHeader);
+              console.log("💰 Payment details:", decodedPayment);
+              data.paymentInfo = decodedPayment;
+            } catch (error) {
+              console.log("No payment details available in response");
+            }
+          }
+
+          // Auto-fill membership ID for other forms
+          if (data.membership && data.membership.membershipId) {
+            document.getElementById("membershipIdForPass").value =
+              data.membership.membershipId;
+            document.getElementById("membershipIdForDetails").value =
+              data.membership.membershipId;
+          }
+
+          showResponse("buyMembershipResponse", data);
+        } catch (error) {
+          console.error("❌ Error purchasing membership:", error);
+          showResponse(
+            "buyMembershipResponse",
+            `Error: ${error.message}`,
+            true
+          );
+        }
+      };
+
+      // Generate day pass (protected) - Now with real x402 payment integration!
+      window.generateDayPass = async function () {
+        try {
+          const privateKey = document.getElementById("privateKey").value;
+          if (!privateKey) {
+            throw new Error(
+              "Private key is required for protected endpoints. Add your private key above."
+            );
+          }
+
+          const membershipId = document.getElementById(
+            "membershipIdForPass"
+          ).value;
+          if (!membershipId) {
+            throw new Error("Membership ID is required");
+          }
+
+          console.log("🔄 Setting up payment client...");
+          const fetchWithPayment = await setupPaymentClient();
+
+          const requestBody = { membershipId };
+
+          console.log(
+            "💳 Making payment request for day pass ($0.0031 USDC)..."
+          );
+          const response = await fetchWithPayment(
+            `${getServerUrl()}/generate-day-pass`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(requestBody),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("✅ Day pass generation successful:", data);
+
+          // Check for payment details in the response header
+          const paymentHeader = response.headers.get("x-payment-response");
+          if (paymentHeader) {
+            try {
+              const decodedPayment = decodeXPaymentResponse(paymentHeader);
+              console.log("💰 Payment details:", decodedPayment);
+              data.paymentInfo = decodedPayment;
+            } catch (error) {
+              console.log("No payment details available in response");
+            }
+          }
+
+          showResponse("generateDayPassResponse", data);
+        } catch (error) {
+          console.error("❌ Error generating day pass:", error);
+          showResponse(
+            "generateDayPassResponse",
+            `Error: ${error.message}`,
+            true
+          );
+        }
+      };
+
+      // Get membership details (free endpoint)
+      window.getMembershipDetails = async function () {
+        try {
+          const membershipId = document.getElementById(
+            "membershipIdForDetails"
+          ).value;
+          if (!membershipId) {
+            throw new Error("Membership ID is required");
+          }
+
+          const response = await fetch(
+            `${getServerUrl()}/get-membership-details/${membershipId}`
+          );
+          const data = await response.json();
+          showResponse("membershipDetailsResponse", data, !response.ok);
+        } catch (error) {
+          showResponse(
+            "membershipDetailsResponse",
+            `Error: ${error.message}`,
+            true
+          );
+        }
+      };
+
+      // Get memberships history (free endpoint)
+      window.getMembershipsHistory = async function () {
+        try {
+          const limit = document.getElementById("historyLimit").value;
+          const page = document.getElementById("historyPage").value;
+          const url = `${getServerUrl()}/memberships/history?limit=${limit}&page=${page}`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+          showResponse("adminResponse", data, !response.ok);
+        } catch (error) {
+          showResponse("adminResponse", `Error: ${error.message}`, true);
+        }
+      };
+
+      // Get day passes history (free endpoint)
+      window.getDayPassesHistory = async function () {
+        try {
+          const limit = document.getElementById("historyLimit").value;
+          const page = document.getElementById("historyPage").value;
+          const url = `${getServerUrl()}/day-passes/history?limit=${limit}&page=${page}`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+          showResponse("adminResponse", data, !response.ok);
+        } catch (error) {
+          showResponse("adminResponse", `Error: ${error.message}`, true);
+        }
+      };
+
+      // Test setup function for debugging
+      window.testSetup = async function () {
+        try {
+          console.log("🧪 Testing setup...");
+
+          const privateKey = document.getElementById("privateKey").value;
+          if (!privateKey) {
+            throw new Error("Please add your private key first");
+          }
+
+          // Test library imports
+          console.log("📦 Testing library imports...");
+          console.log("✅ createWalletClient:", typeof createWalletClient);
+          console.log("✅ privateKeyToAccount:", typeof privateKeyToAccount);
+          console.log("✅ baseSepolia:", baseSepolia);
+          console.log("✅ wrapFetchWithPayment:", typeof wrapFetchWithPayment);
+
+          // Test wallet client creation
+          console.log("🔧 Testing wallet client creation...");
+          const fetchWithPayment = await setupPaymentClient();
+          console.log("✅ Payment client created successfully!");
+
+          // Test server connectivity
+          console.log("🌐 Testing server connectivity...");
+          const response = await fetch(`${getServerUrl()}/`);
+          console.log("✅ Server is reachable:", response.status);
+
+          showResponse("setupTestResponse", {
+            status: "success",
+            message: "Setup test completed! Check console for details.",
+            librariesLoaded: true,
+            walletClientCreated: true,
+            serverReachable: response.status === 200,
+          });
+        } catch (error) {
+          console.error("❌ Setup test failed:", error);
+          showResponse(
+            "setupTestResponse",
+            {
+              status: "error",
+              message: error.message,
+              error: error.toString(),
+            },
+            true
+          );
+        }
+      };
+
+      console.log(
+        "🏋️ Gym Membership System API Tester loaded with REAL x402 payments!"
+      );
+      console.log(
+        "💰 Make sure your server is running on http://localhost:3000"
+      );
+      console.log(
+        "🔑 Add your private key above to test protected endpoints with real payments"
+      );
+      console.log("💰 Prices: Membership $0.001 USDC, Day Pass $0.0031 USDC");
+      console.log(
+        "Note: For full x402 payment integration, you would need to implement the x402-fetch wrapper"
+      );
+    </script>
+  </body>
+</html>
