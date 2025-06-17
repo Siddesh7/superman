@@ -16,9 +16,9 @@ export function MainNav({ items }: MainNavProps) {
   const { data: session } = useSession();
 
   const filteredItems = items?.filter((item) => {
-    // if (item.href?.includes("/profile")) {
-    //   return !!session?.user;
-    // }
+    if (item.href?.includes("/profile")) {
+      return !!session?.user;
+    }
     return true;
   });
 

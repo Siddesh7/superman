@@ -42,8 +42,6 @@ export async function GET() {
             );
         }
 
-        console.log("Session user email", session.user);
-
         const cdp = new CdpClient({
             apiKeyId: process.env.NEXT_PUBLIC_CDP_API_KEY_ID!,
             apiKeySecret: process.env.NEXT_PUBLIC_CDP_API_KEY_SECRET!,
@@ -55,18 +53,9 @@ export async function GET() {
             name: session.user.id, // uniquely identifies user wallet
         });
 
-        const res = await account.requestFaucet({
-            network: "base-sepolia",
-            token: 'eurc',
-        })
-        console.log("res", res);
-
-        console.log("Account", account,);
         const { balances } = await account.listTokenBalances({
             network: 'base-sepolia',
         });
-
-        console.log("balances", balances);
 
         if (!balances || balances.length === 0) {
             return NextResponse.json({
