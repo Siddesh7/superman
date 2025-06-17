@@ -1,6 +1,12 @@
 import { Group } from "@/types/groups";
 import { ActiveTabTypes } from "@/types/profile";
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export type GlobalContextType = {
   activeTab: ActiveTabTypes;
@@ -38,6 +44,20 @@ const GlobalContextProvider = ({ children }: { children: ReactNode }) => {
     walletAddress,
     setWalletAddress,
   };
+
+  useEffect(() => {
+    const initAgent = async () => {
+      try {
+        const res = await fetch("/api/agent");
+        const data = await res.json();
+        console.log("Agent initialized:", data);
+      } catch (err) {
+        console.error("Failed to initialize agent:", err);
+      }
+    };
+
+    initAgent();
+  }, []);
 
   return (
     <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
