@@ -7,6 +7,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 // Load environment variables from .env file
 dotenv_1.default.config();
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const x402_express_1 = require("x402-express");
@@ -16,22 +17,14 @@ const membership_1 = require("./models/membership");
 const day_pass_1 = require("./models/day-pass");
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
-// Enable CORS for all routes
-app.use((req, res, next) => {
-    // Allow all origins including file:// protocol
-    const origin = req.headers.origin;
-    res.header("Access-Control-Allow-Origin", origin || "*");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH");
-    res.header("Access-Control-Allow-Headers", "*");
-    res.header("Access-Control-Expose-Headers", "*");
-    // Handle preflight OPTIONS requests
-    if (req.method === "OPTIONS") {
-        res.status(200).end();
-        return;
-    }
-    next();
-});
+// Configure CORS to allow all origins and methods
+app.use((0, cors_1.default)({
+    origin: true, // Allow all origins
+    credentials: true, // Allow credentials
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allowedHeaders: ["*"],
+    exposedHeaders: ["*"],
+}));
 app.use(express_1.default.json());
 // Connect to MongoDB (handle serverless connection)
 let isConnected = false;

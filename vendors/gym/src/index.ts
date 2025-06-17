@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Request, Response } from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { paymentMiddleware } from "x402-express";
@@ -16,27 +17,16 @@ import { DayPass } from "./models/day-pass";
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Enable CORS for all routes
-app.use((req, res, next) => {
-  // Allow all origins including file:// protocol
-  const origin = req.headers.origin;
-  res.header("Access-Control-Allow-Origin", origin || "*");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH"
-  );
-  res.header("Access-Control-Allow-Headers", "*");
-  res.header("Access-Control-Expose-Headers", "*");
-
-  // Handle preflight OPTIONS requests
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-
-  next();
-});
+// Configure CORS to allow all origins and methods
+app.use(
+  cors({
+    origin: true, // Allow all origins
+    credentials: true, // Allow credentials
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allowedHeaders: ["*"],
+    exposedHeaders: ["*"],
+  })
+);
 
 app.use(express.json());
 
