@@ -4,8 +4,8 @@ import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { userSessionId, membershipId } = await request.json();
-  if (!userSessionId || !membershipId) {
+  const { userSessionId, membershipId, walletAddress } = await request.json();
+  if (!userSessionId || !membershipId || !walletAddress) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 }
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           membershipId,
+          walletAddress,
         }),
       }
     );
