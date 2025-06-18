@@ -22,13 +22,14 @@ interface WeatherData {
  */
 async function getWeatherData(city: string): Promise<WeatherData> {
   try {
+    // Mock weather data for the specified city
     return {
-      location: "data.name",
-      temperature: 1,
-      description: "data.weather[0].description",
-      humidity: 1,
-      windSpeed: 1,
-      country: "data.sys.country",
+      location: city,
+      temperature: 22,
+      description: "Clear sky",
+      humidity: 65,
+      windSpeed: 3.5,
+      country: "US",
     };
   } catch (error) {
     if (error instanceof Error) {

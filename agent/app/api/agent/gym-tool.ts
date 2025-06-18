@@ -67,27 +67,27 @@ interface GymDayPassResponse {
 }
 
 /**
- * Creates a transaction explorer link based on network
+ * Creates a transaction explorer link based on network (currently unused)
  * @param transactionHash - The transaction hash
  * @param network - The network name
  * @returns Explorer URL for the transaction
  */
-function getTransactionExplorerLink(
-  transactionHash: string,
-  network: string
-): string {
-  const explorers: { [key: string]: string } = {
-    "base-sepolia": "https://sepolia.basescan.org/tx/",
-    "base-mainnet": "https://basescan.org/tx/",
-    base: "https://basescan.org/tx/",
-    ethereum: "https://etherscan.io/tx/",
-    "ethereum-mainnet": "https://etherscan.io/tx/",
-    "ethereum-sepolia": "https://sepolia.etherscan.io/tx/",
-  };
+// function getTransactionExplorerLink(
+//   transactionHash: string,
+//   network: string
+// ): string {
+//   const explorers: { [key: string]: string } = {
+//     "base-sepolia": "https://sepolia.basescan.org/tx/",
+//     "base-mainnet": "https://basescan.org/tx/",
+//     base: "https://basescan.org/tx/",
+//     ethereum: "https://etherscan.io/tx/",
+//     "ethereum-mainnet": "https://etherscan.io/tx/",
+//     "ethereum-sepolia": "https://sepolia.etherscan.io/tx/",
+//   };
 
-  const explorerUrl = explorers[network] || explorers["base-sepolia"];
-  return `${explorerUrl}${transactionHash}`;
-}
+//   const explorerUrl = explorers[network] || explorers["base-sepolia"];
+//   return `${explorerUrl}${transactionHash}`;
+// }
 
 /**
  * Fetches user data from Superman AI API
@@ -225,17 +225,17 @@ export const gymTool = {
       });
 
       if (result.success && result.data) {
-        const { paymentResponse, dayPass } = result.data;
+        const { dayPass } = result.data;
 
-        // Format dates for better readability
-        const issuedDate = new Date(dayPass.issuedDate).toLocaleString();
-        const validUntil = new Date(dayPass.validUntil).toLocaleString();
+        // Format dates for better readability (not used in current message)
+        // const issuedDate = new Date(dayPass.issuedDate).toLocaleString();
+        // const validUntil = new Date(dayPass.validUntil).toLocaleString();
 
-        // Create transaction explorer link
-        const transactionLink = getTransactionExplorerLink(
-          paymentResponse.transaction,
-          paymentResponse.network
-        );
+        // Create transaction explorer link (not used in current message)
+        // const transactionLink = getTransactionExplorerLink(
+        //   paymentResponse.transaction,
+        //   paymentResponse.network
+        // );
 
         return {
           success: true,

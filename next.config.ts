@@ -10,10 +10,10 @@ const nextConfig: NextConfig = {
     domains: ["readdy.ai", "lh3.googleusercontent.com"],
   },
   webpack: (config, { isServer }) => {
-    // Exclude vendors directory from webpack build
+    // Exclude vendors and agent directories from webpack build
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: /vendors/,
+      ignored: ["**/vendors/**", "**/agent/**"],
     };
     return config;
   },

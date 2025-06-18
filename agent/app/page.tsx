@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAgent } from "./hooks/useAgent";
 import ReactMarkdown from "react-markdown";
+import Image from "next/image";
 
 /**
  * Home page for the Superman AI Agent
@@ -98,10 +99,12 @@ export default function Home() {
                   {msg.qrCode && (
                     <div className="mt-4 p-4 bg-white/90 backdrop-blur-sm rounded-xl border border-white/30">
                       <div className="text-center">
-                        <img
+                        <Image
                           src={msg.qrCode}
                           alt="QR Code"
-                          className="mx-auto max-w-48 h-auto border rounded-lg shadow-md"
+                          width={192}
+                          height={192}
+                          className="mx-auto border rounded-lg shadow-md"
                         />
                         <p className="text-xs text-gray-600 mt-3 font-medium">
                           📱 Scan this QR code at the gym entrance
