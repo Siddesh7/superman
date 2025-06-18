@@ -550,7 +550,7 @@ app.get(
         .sort({ issuedDate: -1 })
         .limit(limit)
         .skip(skip)
-        .select("-requestIp -qrCode"); // Exclude sensitive data
+        .select("-requestIp"); // Exclude sensitive data
 
       const total = await DayPass.countDocuments({ membershipId });
       const used = await DayPass.countDocuments({ membershipId, isUsed: true });
@@ -634,7 +634,7 @@ app.get(
         .sort({ issuedDate: -1 })
         .limit(limit)
         .skip(skip)
-        .select("-requestIp -qrCode"); // Exclude sensitive data
+        .select("-requestIp"); // Exclude sensitive data
 
       const total = await DayPass.countDocuments({
         membershipId,
