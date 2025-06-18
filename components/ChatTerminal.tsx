@@ -5,11 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, X, Bot, User } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useWallet } from "@/lib/hooks/useWallet";
 
 interface ChatTerminalProps {
   isOpen?: boolean;
   onClose?: () => void;
   isMobile?: boolean;
+}
+
+interface Message {
+  id: number;
+  type: "bot" | "user";
+  text: string;
+  timestamp: string;
 }
 
 const ChatTerminal = ({
@@ -18,9 +26,16 @@ const ChatTerminal = ({
   isMobile = false,
 }: ChatTerminalProps) => {
   const { data: session, status } = useSession();
+  const {
+    data: walletData,
+    isLoading: isLoadingWalletData,
+    error: walletError,
+  } = useWallet(session?.user?.id);
+
   const [isOpen, setIsOpen] = useState(propIsOpen || false);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       type: "bot",
@@ -49,29 +64,75 @@ const ChatTerminal = ({
     onClose?.();
   };
 
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
+  const handleSendMessage = async () => {
+    if (!message.trim() || isLoading) return;
 
-    const newMessage = {
+    const userMessage = {
       id: messages.length + 1,
-      type: "user",
+      type: "user" as const,
       text: message,
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages((prev) => [...prev, userMessage]);
+    const currentMessage = message;
     setMessage("");
+    setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      // Prepare the message with wallet address appended if available
+      let messageWithWallet = currentMessage;
+      if (walletData?.account?.address) {
+        messageWithWallet = `${currentMessage} [Wallet Address: ${walletData.account.address}]`;
+        console.log(messageWithWallet);
+      }
+
+      // Call the agent API
+      const response = await fetch(
+        "https://supermanai-agent.vercel.app/api/agent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userMessage: messageWithWallet,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Add bot response
       const botResponse = {
         id: messages.length + 2,
-        type: "bot",
-        text: "Thanks for your message! I'm here to help with any questions about groups, memberships, or day passes.",
+        type: "bot" as const,
+        text:
+          data.response ||
+          "I received your message, but I couldn't process it properly. Please try again.",
         timestamp: new Date().toLocaleTimeString(),
       };
+
       setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error("Error calling agent API:", error);
+
+      // Add error message
+      const errorResponse = {
+        id: messages.length + 2,
+        type: "bot" as const,
+        text: "Sorry, I'm having trouble connecting to the agent service. Please try again later.",
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      setMessages((prev) => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // For mobile, render only the chat window content
@@ -142,12 +203,18 @@ const ChatTerminal = ({
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Type your message..."
               className="flex-1 glass border-white/20 text-white placeholder:text-white/50 focus:border-purple-400"
+              disabled={isLoading}
             />
             <Button
               onClick={handleSendMessage}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              disabled={isLoading}
             >
-              <Send className="w-4 h-4 text-white" />
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Send className="w-4 h-4 text-white" />
+              )}
             </Button>
           </div>
         </div>
@@ -249,12 +316,18 @@ const ChatTerminal = ({
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Type your message..."
                 className="flex-1 bg-white/10 dark:bg-white/5 backdrop-blur-md border-black/10 dark:border-white/20 text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/50 focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/50"
+                disabled={isLoading}
               />
               <Button
                 onClick={handleSendMessage}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                disabled={isLoading}
               >
-                <Send className="w-4 h-4 text-white" />
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 text-white" />
+                )}
               </Button>
             </div>
           </div>
