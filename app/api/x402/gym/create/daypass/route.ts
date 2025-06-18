@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
       `${GYM_API_URL}/generate-day-pass`,
       {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           membershipId,
         }),

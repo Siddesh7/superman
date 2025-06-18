@@ -6,12 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const { buyerAddresses, startDate, endDate, purchasedBy } =
     await request.json();
-  if (
-    !buyerAddresses ||
-    !startDate ||
-    !endDate ||
-    !purchasedBy
-  ) {
+  if (!buyerAddresses || !startDate || !endDate || !purchasedBy) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 }
@@ -28,12 +23,13 @@ export async function POST(request: NextRequest) {
       name: process.env.AGENT_SESSION_ID!,
     });
 
-    console.log("Account", account);
-
     const fetchWithPayment = wrapFetchWithPayment(fetch, account as any);
 
     const response = await fetchWithPayment(`${GYM_API_URL}/buy-membership`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         buyerAddresses,
         startDate,
@@ -41,8 +37,6 @@ export async function POST(request: NextRequest) {
         purchasedBy,
       }),
     });
-
-    console.log("response", response);
 
     if (!response.ok) {
       return NextResponse.json(
