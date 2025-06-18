@@ -11,4 +11,5 @@ export type Group = {
     isUserJoined?: boolean;
     totalAmountCollected?: number;
     isTargetAchieved?: boolean;
+    membership_id?: string;
 }

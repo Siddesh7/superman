@@ -4,8 +4,8 @@ import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { userSessionId, membershipId, walletAddress } = await request.json();
-  if (!userSessionId || !membershipId || !walletAddress) {
+  const { userSessionId, membershipId } = await request.json();
+  if (!userSessionId || !membershipId) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 }
@@ -32,14 +32,15 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           membershipId,
-          walletAddress,
+          walletAddress: account.address,
         }),
       }
     );
 
+    console.log("Response", response);
     if (!response.ok) {
       return NextResponse.json(
-        { error: "Failed to purchase membership" },
+        { error: "Failed to generate day pass" },
         { status: response.status }
       );
     }
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       dayPass: res?.dayPass,
     });
   } catch (error) {
-    console.error("Error purchasing membership:", error);
+    console.error("Error generating day pass:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

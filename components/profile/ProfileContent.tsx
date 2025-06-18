@@ -47,7 +47,7 @@ const ProfileContent = ({
         <GroupsCreatedContent createdGroups={existingUser.createdGroups} />
       )}
       {tab === "myWallet" && <MyWalletContent walletData={walletData} />}
-      {tab === "dayPasses" && <DayPassesContent />}
+      {tab === "dayPasses" && <DayPassesContent existingUser={existingUser} />}
       {tab === "logout" && <LogoutContent />}
     </div>
   );

@@ -6,8 +6,8 @@ const MyGroupsContent = ({ joinedGroups }: { joinedGroups: Group[] }) => {
   return (
     <div className="space-y-8">
       {joinedGroups.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div className="glass profile-gradient rounded-lg shadow-sm p-6 border border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-200 mb-4">
             Groups You Joined
           </h2>
           <div className="gap-6 flex flex-col">

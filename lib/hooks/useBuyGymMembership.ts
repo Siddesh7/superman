@@ -5,6 +5,7 @@ interface BuyGymMembershipParams {
     startDate: string;
     endDate: string;
     purchasedBy: string;
+    group_id: string;
 }
 
 interface GymMembershipResponse {
