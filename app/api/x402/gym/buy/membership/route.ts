@@ -2,9 +2,10 @@ import { GYM_API_URL } from "@/lib/constants";
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseClient } from "@/lib/supabase.client";
 
 export async function POST(request: NextRequest) {
-  const { buyerAddresses, startDate, endDate, purchasedBy } =
+  const { buyerAddresses, startDate, endDate, purchasedBy, group_id } =
     await request.json();
   if (!buyerAddresses || !startDate || !endDate || !purchasedBy) {
     return NextResponse.json(
@@ -48,6 +49,24 @@ export async function POST(request: NextRequest) {
       response.headers.get("x-payment-response")!
     );
     const res = await response.json();
+
+    if (!res?.membership?.membershipId) {
+      return NextResponse.json(
+        { error: "Failed to purchase membership" },
+        { status: response.status }
+      );
+    }
+
+    const groupResponse = await supabaseClient
+      .from("groups")
+      .update({
+        status: "fulfilment",
+        membership_id: res.membership.membershipId,
+      })
+      .eq("id", group_id);
+
+    console.log("groupResponse", groupResponse);
+
     return NextResponse.json({
       paymentResponse,
       membershipId: res?.membership?.membershipId,

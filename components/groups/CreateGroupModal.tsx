@@ -39,6 +39,15 @@ const CreateGroupModal = () => {
     }
 
     try {
+      const obj = {
+        name: groupName,
+        target_amount: parseFloat(targetAmount),
+        max_members: parseInt(maxMembers),
+        created_by: walletData.account.address,
+        purchase_item: purchaseItem,
+      };
+      console.log("obj", obj);
+
       await createGroup.mutateAsync({
         name: groupName,
         target_amount: parseFloat(targetAmount),
@@ -55,9 +64,9 @@ const CreateGroupModal = () => {
       setPurchaseItem("");
 
       toast.success("Group created successfully!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create group:", error);
-      toast.error("Failed to create group. Please try again.");
+      toast.error(error.message);
     }
   };
 

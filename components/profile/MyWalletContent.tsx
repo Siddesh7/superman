@@ -2,15 +2,16 @@ import React from "react";
 import { WalletData } from "@/types/wallet";
 import { copyToClipboard, formatWalletAddress } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy } from "lucide-react";
+import { Copy, Coins } from "lucide-react";
 import { toast } from "sonner";
-import { parseUnits } from "viem";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
+import { useRequestFaucet } from "@/lib/hooks/useRequestFaucet";
 
 const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
   const address = walletData.account.address;
   const { theme } = useTheme();
+  const requestFaucet = useRequestFaucet();
 
   const handleCopyAddress = async () => {
     try {
@@ -20,6 +21,17 @@ const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
       console.error("Failed to copy wallet address:", error);
       toast.error("Failed to copy wallet address");
     }
+  };
+
+  const handleRequestFaucet = () => {
+    requestFaucet.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Faucet request submitted successfully!");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to request faucet");
+      },
+    });
   };
 
   return (
@@ -86,6 +98,20 @@ const MyWalletContent = ({ walletData }: { walletData: WalletData }) => {
             <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
+      </div>
+
+      <div className="w-full">
+        <Button
+          onClick={handleRequestFaucet}
+          disabled={requestFaucet.isPending}
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <Coins className="h-4 w-4" />
+          {requestFaucet.isPending ? "Requesting..." : "Request Test Tokens"}
+        </Button>
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+          Get test USDC tokens for Base Sepolia network
+        </p>
       </div>
     </div>
   );

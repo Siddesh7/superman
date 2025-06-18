@@ -16,16 +16,20 @@ import {
   UserPlus,
   CheckCircle,
   ShoppingCart,
+  Ticket,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useGlobalContext } from "@/context/GlobalContext";
 import JoinGroupModal from "@/components/groups/JoinGroupModal";
+import DayPassModal from "@/components/groups/DayPassModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useBuyGymMembership } from "@/lib/hooks/useBuyGymMembership";
 import { useAgentWallet } from "@/lib/hooks/useAgentWallet";
+import { useCreateDayPass } from "@/lib/hooks/useCreateDayPass";
+import { DayPass } from "@/types/dayPasses";
 
 export default function GroupDetailsPage({
   params,
@@ -36,6 +40,8 @@ export default function GroupDetailsPage({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [showDayPassModal, setShowDayPassModal] = useState(false);
+  const [dayPassData, setDayPassData] = useState<DayPass | null>(null);
   const { data: session } = useSession();
 
   const {
@@ -52,6 +58,9 @@ export default function GroupDetailsPage({
   const buyMembership = useBuyGymMembership();
 
   const { data: agentWallet, isLoading } = useAgentWallet();
+
+  // Create day pass hook
+  const createDayPass = useCreateDayPass();
 
   // Fetch group data using React Query
   const {
@@ -129,16 +138,49 @@ export default function GroupDetailsPage({
           .toISOString()
           .split("T")[0],
         purchasedBy: agentWallet.account.address,
+        group_id: group.id,
       });
 
       toast.success("Membership purchased successfully!");
       console.log("Membership purchase result:", result);
-
       // Optionally refetch group data or redirect
       refetchGroup();
     } catch (error) {
       console.error("Failed to purchase membership:", error);
       toast.error("Failed to purchase membership. Please try again.");
+    }
+  };
+
+  const handleGetDayPass = async () => {
+    if (!session?.user?.id) {
+      toast.error("Please sign in to get a day pass");
+      return;
+    }
+
+    if (!group?.membership_id) {
+      toast.error("No membership available for this group");
+      return;
+    }
+
+    try {
+      const result = await createDayPass.mutateAsync({
+        userSessionId: session.user.id,
+        membershipId: group.membership_id,
+      });
+
+      toast.success("Day pass created successfully!");
+      console.log("Day pass created:", result.dayPass);
+      console.log("Payment response:", result.paymentResponse);
+
+      // Store the day pass data and show the modal
+      setDayPassData(result.dayPass);
+      setShowDayPassModal(true);
+
+      // Optionally refetch group data
+      refetchGroup();
+    } catch (error) {
+      console.error("Failed to create day pass:", error);
+      toast.error("Failed to create day pass. Please try again.");
     }
   };
 
@@ -181,6 +223,10 @@ export default function GroupDetailsPage({
     funded: {
       color: "bg-green-100 text-green-800 border-green-200",
       label: "Funded",
+    },
+    fulfilment: {
+      color: "bg-green-100 text-green-800 border-green-200",
+      label: "Purchased",
     },
     expired: {
       color: "bg-red-100 text-red-800 border-red-200",
@@ -363,6 +409,16 @@ export default function GroupDetailsPage({
                     Share Group
                   </Button>
                 )}
+                {group.isUserJoined && group.membership_id && (
+                  <Button
+                    onClick={handleGetDayPass}
+                    disabled={createDayPass.isPending}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Ticket className="w-4 h-4 mr-2" />
+                    {createDayPass.isPending ? "Creating..." : "Get Day Pass"}
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -373,6 +429,14 @@ export default function GroupDetailsPage({
         <JoinGroupModal
           group={selectedGroup}
           onJoinSuccess={handleJoinSuccess}
+        />
+      )}
+
+      {showDayPassModal && dayPassData && (
+        <DayPassModal
+          isOpen={showDayPassModal}
+          onClose={() => setShowDayPassModal(false)}
+          dayPass={dayPassData}
         />
       )}
     </div>

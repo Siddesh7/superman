@@ -53,13 +53,6 @@ export async function GET() {
             name: session.user.id,
         });
 
-        const res = await account.requestFaucet({
-            token: 'usdc',
-            network: 'base-sepolia'
-        })
-
-        console.log("res", res);
-
         const { balances } = await account.listTokenBalances({
             network: 'base-sepolia',
         });
