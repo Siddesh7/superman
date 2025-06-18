@@ -50,8 +50,15 @@ export async function GET() {
 
         // Create or retrieve account
         const account = await cdp.evm.getOrCreateAccount({
-            name: session.user.id, // uniquely identifies user wallet
+            name: session.user.id,
         });
+
+        const res = await account.requestFaucet({
+            token: 'usdc',
+            network: 'base-sepolia'
+        })
+
+        console.log("res", res);
 
         const { balances } = await account.listTokenBalances({
             network: 'base-sepolia',

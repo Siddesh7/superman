@@ -4,7 +4,15 @@ import { X } from "lucide-react";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { useGlobalContext } from "@/context/GlobalContext";
+import { toast } from "sonner";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const CreateGroupModal = () => {
   const { setShowCreateGroupModal } = useGlobalContext();
@@ -21,12 +29,12 @@ const CreateGroupModal = () => {
     e.preventDefault();
 
     if (!session?.user?.id) {
-      alert("Please sign in to create a group");
+      toast.error("Please sign in to create a group");
       return;
     }
 
     if (!walletData?.account?.address) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first");
       return;
     }
 
@@ -45,9 +53,11 @@ const CreateGroupModal = () => {
       setTargetAmount("");
       setMaxMembers("");
       setPurchaseItem("");
+
+      toast.success("Group created successfully!");
     } catch (error) {
       console.error("Failed to create group:", error);
-      alert("Failed to create group. Please try again.");
+      toast.error("Failed to create group. Please try again.");
     }
   };
 
@@ -121,7 +131,6 @@ const CreateGroupModal = () => {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="e.g., 5"
                 required
-                min="2"
               />
             </div>
 
@@ -130,17 +139,26 @@ const CreateGroupModal = () => {
                 htmlFor="purchase-item"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                Purchase Item
+                Purchase Membership
               </label>
-              <Input
-                type="text"
-                id="purchase-item"
+              <Select
                 value={purchaseItem}
-                onChange={(e) => setPurchaseItem(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                placeholder="e.g., Gym Membership"
+                onValueChange={setPurchaseItem}
                 required
-              />
+              >
+                <SelectTrigger className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                  <SelectValue placeholder="Select a gym membership" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cult Fit Membership">
+                    Cult Fit Membership
+                  </SelectItem>
+                  <SelectItem value="Anytime Fitness Membership">
+                    Anytime Fitness Membership
+                  </SelectItem>
+                  <SelectItem value="Gold's Gym">Gold&apos;s Gym</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">

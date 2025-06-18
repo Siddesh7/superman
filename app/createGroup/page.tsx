@@ -5,6 +5,7 @@ import { useCreateGroup } from "@/lib/hooks/useCreateGroup";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 const CreateGroupPage = () => {
@@ -22,12 +23,12 @@ const CreateGroupPage = () => {
     e.preventDefault();
 
     if (!session?.user?.id) {
-      alert("Please sign in to create a group");
+      toast.error("Please sign in to create a group");
       return;
     }
 
     if (!walletData?.account?.address) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first");
       return;
     }
 
@@ -46,11 +47,13 @@ const CreateGroupPage = () => {
       setMaxMembers("");
       setPurchaseItem("");
 
+      toast.success("Group created successfully!");
+
       // Redirect to groups page
       router.push("/groups");
     } catch (error) {
       console.error("Failed to create group:", error);
-      alert("Failed to create group. Please try again.");
+      toast.error("Failed to create group. Please try again.");
     }
   };
 

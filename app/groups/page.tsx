@@ -7,7 +7,6 @@ import React from "react";
 
 const GroupsPage = () => {
   const { showCreateGroupModal } = useGlobalContext();
-
   return (
     <div>
       <GroupsComponent />

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, X, Bot, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface ChatTerminalProps {
   isOpen?: boolean;
@@ -16,6 +17,7 @@ const ChatTerminal = ({
   onClose,
   isMobile = false,
 }: ChatTerminalProps) => {
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(propIsOpen || false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -32,6 +34,15 @@ const ChatTerminal = ({
       setIsOpen(propIsOpen);
     }
   }, [propIsOpen]);
+
+  // Don't render anything if user is not authenticated with Google
+  if (status === "loading") {
+    return null; // Show nothing while loading
+  }
+
+  if (status === "unauthenticated" || !session?.user) {
+    return null; // Don't show chat terminal for unauthenticated users
+  }
 
   const handleClose = () => {
     setIsOpen(false);

@@ -94,6 +94,44 @@ export function GroupCard({ group }: GroupCardProps) {
           </div>
         </div>
 
+        {/* Funding Progress */}
+        {group.totalAmountCollected !== undefined && (
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Funding Progress
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {Math.round(
+                  ((group.totalAmountCollected || 0) / group.target_amount) *
+                    100
+                )}
+                %
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                style={{
+                  width: `${Math.min(
+                    ((group.totalAmountCollected || 0) / group.target_amount) *
+                      100,
+                    100
+                  )}%`,
+                }}
+              ></div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ${(group.totalAmountCollected || 0).toLocaleString()}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ${group.target_amount.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center text-xs text-gray-500 pt-2 border-t">
           <Calendar className="w-3 h-3 mr-1" />
           <span>Created {new Date(group.created_at).toLocaleDateString()}</span>

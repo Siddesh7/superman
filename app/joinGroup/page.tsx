@@ -15,19 +15,36 @@ import {
   Share2,
   ArrowLeft,
   UserPlus,
+  CheckCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useJoinGroup } from "@/lib/hooks/useJoinGroup";
 import { useSession, signIn } from "next-auth/react";
+import { AgentWallet } from "@/config/wagmiConfig";
+import { useAgentWallet } from "@/lib/hooks/useAgentWallet";
 
 const JoinGroupPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
-  const joinGroup = useJoinGroup();
   const [groupId, setGroupId] = useState("");
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Callback to refresh group data after successful join
+  const handleJoinSuccess = async () => {
+    if (groupId) {
+      const response = await fetch(`/api/group/${groupId}`);
+      const updatedGroup = await response.json();
+      if (response.ok) {
+        setGroup(updatedGroup);
+      }
+    }
+    toast.success("Successfully joined the group!");
+  };
+
+  const joinGroup = useJoinGroup(handleJoinSuccess);
+  const { data: agentWallet, isLoading } = useAgentWallet();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,10 +77,22 @@ const JoinGroupPage = () => {
       return;
     }
 
+    if (!group) {
+      toast.error("No group selected");
+      return;
+    }
+
+    if (!agentWallet?.account.address) {
+      toast.error("Agent is inactive, please try again later");
+      return;
+    }
+
     try {
-      await joinGroup.mutateAsync({ group_id: groupId });
-      toast.success("Successfully joined the group!");
-      router.push("/groups");
+      await joinGroup.mutateAsync({
+        group_id: groupId,
+        recipientWallet: agentWallet.account.address,
+        amount: (group.target_amount / group.max_members).toString(),
+      });
     } catch (error) {
       console.error("Failed to join group:", error);
       toast.error(
@@ -202,7 +231,7 @@ const JoinGroupPage = () => {
               </div>
 
               <div className="flex gap-3 pt-4">
-                {group.status === "pending" && (
+                {group.status === "pending" && !group.isUserJoined && (
                   <Button
                     onClick={handleJoin}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
@@ -210,6 +239,15 @@ const JoinGroupPage = () => {
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
                     {joinGroup.isPending ? "Joining..." : "Join Group"}
+                  </Button>
+                )}
+                {group.status === "pending" && group.isUserJoined && (
+                  <Button
+                    disabled
+                    className="flex-1 bg-green-600 text-white cursor-not-allowed"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Already Joined
                   </Button>
                 )}
                 <Button

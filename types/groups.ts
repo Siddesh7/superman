@@ -8,4 +8,7 @@ export type Group = {
     created_by: string;
     purchase_item: string;
     created_at: string;
+    isUserJoined?: boolean;
+    totalAmountCollected?: number;
+    isTargetAchieved?: boolean;
 }

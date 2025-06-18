@@ -4,10 +4,9 @@ import { wrapFetchWithPayment, decodeXPaymentResponse } from "x402-fetch";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { userSessionId, buyerAddresses, startDate, endDate, purchasedBy } =
+  const { buyerAddresses, startDate, endDate, purchasedBy } =
     await request.json();
   if (
-    !userSessionId ||
     !buyerAddresses ||
     !startDate ||
     !endDate ||
@@ -26,8 +25,11 @@ export async function POST(request: NextRequest) {
       walletSecret: process.env.NEXT_PUBLIC_CDP_WALLET_SECRET!,
     });
     const account = await cdp.evm.getOrCreateAccount({
-      name: userSessionId,
+      name: process.env.AGENT_SESSION_ID!,
     });
+
+    console.log("Account", account);
+
     const fetchWithPayment = wrapFetchWithPayment(fetch, account as any);
 
     const response = await fetchWithPayment(`${GYM_API_URL}/buy-membership`, {
@@ -39,6 +41,8 @@ export async function POST(request: NextRequest) {
         purchasedBy,
       }),
     });
+
+    console.log("response", response);
 
     if (!response.ok) {
       return NextResponse.json(
