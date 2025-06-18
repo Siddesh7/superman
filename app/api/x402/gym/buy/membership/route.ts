@@ -47,8 +47,11 @@ export async function POST(request: NextRequest) {
     const paymentResponse = decodeXPaymentResponse(
       response.headers.get("x-payment-response")!
     );
-
-    return NextResponse.json(paymentResponse);
+    const res = await response.json();
+    return NextResponse.json({
+      paymentResponse,
+      membershipId: res?.membership?.membershipId,
+    });
   } catch (error) {
     console.error("Error purchasing membership:", error);
     return NextResponse.json(
