@@ -1,2 +1,3 @@
-# Exclude vendors directory from root build
-vendors/ 
+# Exclude vendors and agent directories from root build
+vendors/
+agent/ 

@@ -12,6 +12,12 @@ vendors/*/dist
 vendors/*/.vercel
 vendors/*/build
 
+# agent app build artifacts (keep source code in repo)
+agent/.next/
+agent/.vercel/
+agent/build/
+agent/node_modules/
+
 # testing
 /coverage
 

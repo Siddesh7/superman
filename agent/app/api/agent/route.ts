@@ -72,12 +72,12 @@ export async function POST(
     if (toolResults && Array.isArray(toolResults)) {
       for (const result of toolResults) {
         try {
-          const toolResult = result as any;
+          const toolResult = result as { result?: { qrCode?: string } };
           if (toolResult && toolResult.result && toolResult.result.qrCode) {
             qrCode = toolResult.result.qrCode;
             break;
           }
-        } catch (e) {
+        } catch {
           // Skip if result doesn't have expected structure
           continue;
         }
