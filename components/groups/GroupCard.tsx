@@ -24,6 +24,10 @@ const statusConfig = {
     color: "bg-red-100 text-red-800 border-red-200",
     label: "Expired",
   },
+  fulfilment: {
+    color: "bg-green-100 text-green-800 border-green-200",
+    label: "Purchased",
+  },
 };
 
 export function GroupCard({ group }: GroupCardProps) {
