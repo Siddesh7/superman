@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
-    darkMode: ["class"],
+    darkMode: "class",
     content: [
         "./pages/**/*.{ts,tsx}",
         "./components/**/*.{ts,tsx}",
@@ -151,8 +152,8 @@ export default {
         }
     },
     plugins: [
-        require("tailwindcss-animate"),
-        function ({ addUtilities }: any) {
+        tailwindcssAnimate,
+        function ({ addUtilities }: { addUtilities: (utilities: Record<string, Record<string, string | Record<string, string>>>) => void }) {
             const newUtilities = {
                 '.glass': {
                     background: 'rgba(255, 255, 255, 0.1)',

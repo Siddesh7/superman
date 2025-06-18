@@ -1,8 +1,15 @@
 import Image from "next/image";
 import React from "react";
 import { InfoIcon, Rocket, Video } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const HeaderSection = () => {
+  const router = useRouter();
+
+  const handleLaunchApp = () => {
+    router.push("/login");
+  };
+
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +25,10 @@ const HeaderSection = () => {
               passes with smart wallet technology.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="flex gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-button text-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg cursor-pointer whitespace-nowrap">
+              <button
+                onClick={handleLaunchApp}
+                className="flex gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-button text-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg cursor-pointer whitespace-nowrap"
+              >
                 <Rocket />
                 Launch App
               </button>
