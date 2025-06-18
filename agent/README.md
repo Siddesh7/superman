@@ -62,6 +62,19 @@ This agent includes weather functionality powered by OpenWeatherMap API. You can
 
 The agent will provide current weather conditions including temperature, humidity, wind speed, and weather description.
 
+### 🏋️ Gym Day Pass Creation
+
+The agent can help you create gym day passes when you express intent to go to the gym. You can say things like:
+
+- "I wanna hit gym today"
+- "Book me a gym session"
+- "I want to go to the gym"
+- "Create a gym day pass"
+
+The agent will automatically look up your user data and membership information using your wallet address, then create a gym day pass. You only need to provide:
+
+- `walletAddress` - Your wallet address (the agent will automatically fetch your user ID and membership details)
+
 ### 🏦 Onchain Capabilities
 
 All standard AgentKit onchain capabilities are available, including:

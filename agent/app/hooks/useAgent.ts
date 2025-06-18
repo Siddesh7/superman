@@ -11,7 +11,10 @@ import { AgentRequest, AgentResponse } from "../types/api";
  *
  * @throws {Error} Logs an error if the request fails.
  */
-async function messageAgent(userMessage: string): Promise<string | null> {
+async function messageAgent(userMessage: string): Promise<{
+  text: string;
+  qrCode?: string;
+} | null> {
   try {
     const response = await fetch("/api/agent", {
       method: "POST",
@@ -20,7 +23,14 @@ async function messageAgent(userMessage: string): Promise<string | null> {
     });
 
     const data = (await response.json()) as AgentResponse;
-    return data.response ?? data.error ?? null;
+    const text = data.response ?? data.error ?? null;
+
+    if (!text) return null;
+
+    return {
+      text,
+      qrCode: data.qrCode,
+    };
   } catch (error) {
     console.error("Error communicating with agent:", error);
     return null;
@@ -47,7 +57,9 @@ async function messageAgent(userMessage: string): Promise<string | null> {
  * - `isThinking`: Boolean indicating if the agent is processing a response.
  */
 export function useAgent() {
-  const [messages, setMessages] = useState<{ text: string; sender: "user" | "agent" }[]>([]);
+  const [messages, setMessages] = useState<
+    { text: string; sender: "user" | "agent"; qrCode?: string }[]
+  >([]);
   const [isThinking, setIsThinking] = useState(false);
 
   /**
@@ -58,13 +70,20 @@ export function useAgent() {
   const sendMessage = async (input: string) => {
     if (!input.trim()) return;
 
-    setMessages(prev => [...prev, { text: input, sender: "user" }]);
+    setMessages((prev) => [...prev, { text: input, sender: "user" }]);
     setIsThinking(true);
 
     const responseMessage = await messageAgent(input);
 
     if (responseMessage) {
-      setMessages(prev => [...prev, { text: responseMessage, sender: "agent" }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: responseMessage.text,
+          sender: "agent",
+          qrCode: responseMessage.qrCode,
+        },
+      ]);
     }
 
     setIsThinking(false);

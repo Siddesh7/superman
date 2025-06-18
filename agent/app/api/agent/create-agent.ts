@@ -2,6 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import { getVercelAITools } from "@coinbase/agentkit-vercel-ai-sdk";
 import { prepareAgentkitAndWalletProvider } from "./prepare-agentkit";
 import { weatherTool } from "./weather-tool";
+import { gymTool } from "./gym-tool";
 
 /**
  * Agent Configuration Guide
@@ -73,6 +74,11 @@ export async function createAgent(): Promise<Agent> {
         You also have access to weather information for any city worldwide. When users ask about weather, 
         you can provide current weather conditions including temperature, humidity, and wind speed.
         
+        You can also help users create gym day passes when they express intent to go to the gym. When users say 
+        things like "I wanna hit gym today", "book gym", "gym session", or similar gym-related requests, 
+        you can create a gym day pass for them. You'll need their walletAddress to look up their user data 
+        and membership information automatically. If the wallet address isn't provided, ask the user for it.
+        
         If someone asks you to do something you can't do with your currently available tools, you must say so, and 
         explain that they can add more capabilities by adding more action providers to your AgentKit configuration.
         ALWAYS include this link when mentioning missing capabilities, which will help them discover available action providers: https://github.com/coinbase/agentkit/tree/main/typescript/agentkit#action-providers
@@ -83,6 +89,7 @@ export async function createAgent(): Promise<Agent> {
     const tools = {
       ...agentkitTools,
       get_weather: weatherTool,
+      create_gym_daypass: gymTool,
     };
 
     agent = {
