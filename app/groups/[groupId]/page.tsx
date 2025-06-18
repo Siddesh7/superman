@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useGlobalContext } from "@/context/GlobalContext";
+import JoinGroupModal from "@/components/groups/JoinGroupModal";
 
 export default function GroupDetailsPage({
   params,
@@ -32,6 +34,18 @@ export default function GroupDetailsPage({
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    showJoinGroupModal,
+    selectedGroup,
+    setShowJoinGroupModal,
+    setSelectedGroup,
+  } = useGlobalContext();
+
+  const handleJoinClick = () => {
+    setSelectedGroup(group);
+    setShowJoinGroupModal(true);
+  };
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -91,10 +105,12 @@ export default function GroupDetailsPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading group details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            Loading group details...
+          </p>
         </div>
       </div>
     );
@@ -220,7 +236,7 @@ export default function GroupDetailsPage({
               <div className="flex gap-3 pt-4">
                 {group.status === "pending" && (
                   <Button
-                    onClick={handleJoin}
+                    onClick={handleJoinClick}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={joinGroup.isPending}
                   >
@@ -241,6 +257,10 @@ export default function GroupDetailsPage({
           </Card>
         </div>
       </div>
+
+      {showJoinGroupModal && selectedGroup && (
+        <JoinGroupModal group={selectedGroup} />
+      )}
     </div>
   );
 }

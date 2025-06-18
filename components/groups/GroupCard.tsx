@@ -101,32 +101,30 @@ export function GroupCard({ group }: GroupCardProps) {
 
         <div className="flex gap-2 pt-2">
           <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+            size="lg"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white cursor-pointer"
             onClick={handleViewDetails}
           >
             View Details
           </Button>
-          {group.status === "pending" && (
-            <>
-              <Button
-                onClick={handleJoinClick}
-                size="sm"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white"
-              >
-                Join Group
-              </Button>
-              <Button
-                onClick={handleShareClick}
-                size="sm"
-                variant="outline"
-                className="hover:bg-gray-50"
-              >
-                <Share2 className="w-4 h-4" />
-              </Button>
-            </>
-          )}
+          <Button
+            onClick={handleShareClick}
+            size="lg"
+            className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 cursor-pointer"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Group
+          </Button>
+
+          {/* {group.status === "pending" && (
+            <Button
+              onClick={handleJoinClick}
+              size="sm"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-white"
+            >
+              Join Group
+            </Button>
+          )} */}
         </div>
       </CardContent>
     </Card>
