@@ -12,6 +12,7 @@ export interface IMembership extends Document {
   updatedAt: Date;
   purchasedBy: string; // main buyer address
   requestIp?: string;
+  isAuthorizedAddress(address: string): boolean;
 }
 
 const MembershipSchema: Schema = new Schema(

@@ -246,6 +246,18 @@
             placeholder="GYM-1234567890-ABCDEFGHI"
           />
         </div>
+        <div class="form-group">
+          <label for="walletAddressForPass">Wallet Address:</label>
+          <input
+            type="text"
+            id="walletAddressForPass"
+            placeholder="0x1234567890123456789012345678901234567890"
+          />
+          <small
+            >Must be one of the authorized wallet addresses for this
+            membership</small
+          >
+        </div>
         <button class="protected" onclick="generateDayPass()">
           POST /generate-day-pass (Requires Payment)
         </button>
@@ -270,6 +282,86 @@
           GET /get-membership-details/:id
         </button>
         <div id="membershipDetailsResponse" class="response"></div>
+      </div>
+
+      <!-- Get Day Passes for Membership -->
+      <div class="section">
+        <h3>
+          🎫 Get Day Passes by Membership
+          <span class="endpoint-status free-status">FREE</span>
+        </h3>
+        <div class="form-group">
+          <label for="membershipIdForDayPasses">Membership ID:</label>
+          <input
+            type="text"
+            id="membershipIdForDayPasses"
+            placeholder="GYM-1234567890-ABCDEFGHI"
+          />
+        </div>
+        <div class="flex-inputs">
+          <div class="form-group">
+            <label for="dayPassLimit">Limit:</label>
+            <input
+              type="number"
+              id="dayPassLimit"
+              value="10"
+              min="1"
+              max="50"
+            />
+          </div>
+          <div class="form-group">
+            <label for="dayPassPage">Page:</label>
+            <input type="number" id="dayPassPage" value="1" min="1" />
+          </div>
+        </div>
+        <button onclick="getMembershipDayPasses()">
+          GET /memberships/:membershipId/day-passes
+        </button>
+        <div id="membershipDayPassesResponse" class="response"></div>
+      </div>
+
+      <!-- Get Day Passes for Membership + Wallet -->
+      <div class="section">
+        <h3>
+          🎫 Get Day Passes by Membership & Wallet
+          <span class="endpoint-status free-status">FREE</span>
+        </h3>
+        <div class="form-group">
+          <label for="membershipIdForWalletPasses">Membership ID:</label>
+          <input
+            type="text"
+            id="membershipIdForWalletPasses"
+            placeholder="GYM-1234567890-ABCDEFGHI"
+          />
+        </div>
+        <div class="form-group">
+          <label for="walletAddressForPasses">Wallet Address:</label>
+          <input
+            type="text"
+            id="walletAddressForPasses"
+            placeholder="0x1234567890123456789012345678901234567890"
+          />
+        </div>
+        <div class="flex-inputs">
+          <div class="form-group">
+            <label for="walletPassLimit">Limit:</label>
+            <input
+              type="number"
+              id="walletPassLimit"
+              value="10"
+              min="1"
+              max="50"
+            />
+          </div>
+          <div class="form-group">
+            <label for="walletPassPage">Page:</label>
+            <input type="number" id="walletPassPage" value="1" min="1" />
+          </div>
+        </div>
+        <button onclick="getMembershipWalletDayPasses()">
+          GET /memberships/:membershipId/wallet/:walletAddress/day-passes
+        </button>
+        <div id="membershipWalletDayPassesResponse" class="response"></div>
       </div>
 
       <!-- Admin Endpoints -->
@@ -466,6 +558,19 @@
               data.membership.membershipId;
             document.getElementById("membershipIdForDetails").value =
               data.membership.membershipId;
+            document.getElementById("membershipIdForDayPasses").value =
+              data.membership.membershipId;
+            document.getElementById("membershipIdForWalletPasses").value =
+              data.membership.membershipId;
+
+            // Auto-fill wallet address with the purchasedBy address
+            const purchasedBy = data.membership.purchasedBy;
+            if (purchasedBy) {
+              document.getElementById("walletAddressForPass").value =
+                purchasedBy;
+              document.getElementById("walletAddressForPasses").value =
+                purchasedBy;
+            }
           }
 
           showResponse("buyMembershipResponse", data);
@@ -492,14 +597,22 @@
           const membershipId = document.getElementById(
             "membershipIdForPass"
           ).value;
+          const walletAddress = document.getElementById(
+            "walletAddressForPass"
+          ).value;
+
           if (!membershipId) {
             throw new Error("Membership ID is required");
+          }
+
+          if (!walletAddress) {
+            throw new Error("Wallet address is required");
           }
 
           console.log("🔄 Setting up payment client...");
           const fetchWithPayment = await setupPaymentClient();
 
-          const requestBody = { membershipId };
+          const requestBody = { membershipId, walletAddress };
 
           console.log(
             "💳 Making payment request for day pass ($0.0031 USDC)..."
@@ -561,6 +674,66 @@
         } catch (error) {
           showResponse(
             "membershipDetailsResponse",
+            `Error: ${error.message}`,
+            true
+          );
+        }
+      };
+
+      // Get day passes for a specific membership (free endpoint)
+      window.getMembershipDayPasses = async function () {
+        try {
+          const membershipId = document.getElementById(
+            "membershipIdForDayPasses"
+          ).value;
+          if (!membershipId) {
+            throw new Error("Membership ID is required");
+          }
+
+          const limit = document.getElementById("dayPassLimit").value;
+          const page = document.getElementById("dayPassPage").value;
+          const url = `${getServerUrl()}/memberships/${membershipId}/day-passes?limit=${limit}&page=${page}`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+          showResponse("membershipDayPassesResponse", data, !response.ok);
+        } catch (error) {
+          showResponse(
+            "membershipDayPassesResponse",
+            `Error: ${error.message}`,
+            true
+          );
+        }
+      };
+
+      // Get day passes for a specific membership and wallet address (free endpoint)
+      window.getMembershipWalletDayPasses = async function () {
+        try {
+          const membershipId = document.getElementById(
+            "membershipIdForWalletPasses"
+          ).value;
+          const walletAddress = document.getElementById(
+            "walletAddressForPasses"
+          ).value;
+
+          if (!membershipId) {
+            throw new Error("Membership ID is required");
+          }
+
+          if (!walletAddress) {
+            throw new Error("Wallet address is required");
+          }
+
+          const limit = document.getElementById("walletPassLimit").value;
+          const page = document.getElementById("walletPassPage").value;
+          const url = `${getServerUrl()}/memberships/${membershipId}/wallet/${walletAddress}/day-passes?limit=${limit}&page=${page}`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+          showResponse("membershipWalletDayPassesResponse", data, !response.ok);
+        } catch (error) {
+          showResponse(
+            "membershipWalletDayPassesResponse",
             `Error: ${error.message}`,
             true
           );

@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IDayPass extends Document {
   passId: string;
   membershipId: string;
+  walletAddress: string;
   qrCode: string;
   issuedDate: Date;
   validUntil: Date;
@@ -22,7 +23,10 @@ const DayPassSchema: Schema = new Schema(
     membershipId: {
       type: String,
       required: true,
-      ref: "Membership",
+    },
+    walletAddress: {
+      type: String,
+      required: true,
     },
     qrCode: {
       type: String,
@@ -55,6 +59,8 @@ const DayPassSchema: Schema = new Schema(
 // Add indexes for better query performance
 DayPassSchema.index({ passId: 1 });
 DayPassSchema.index({ membershipId: 1 });
+DayPassSchema.index({ walletAddress: 1 });
+DayPassSchema.index({ membershipId: 1, walletAddress: 1 });
 DayPassSchema.index({ issuedDate: -1 });
 DayPassSchema.index({ validUntil: 1 });
 DayPassSchema.index({ isUsed: 1 });

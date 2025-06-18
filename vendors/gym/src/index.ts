@@ -59,6 +59,7 @@ interface BuyMembershipRequest {
 
 interface GenerateDayPassRequest {
   membershipId: string;
+  walletAddress: string;
 }
 
 interface X402PaymentPayload {
@@ -267,14 +268,14 @@ app.post(
   "/generate-day-pass",
   async (req: Request<{}, {}, GenerateDayPassRequest>, res: Response) => {
     try {
-      const { membershipId } = req.body;
+      const { membershipId, walletAddress } = req.body;
       const clientIp = req.ip || req.connection.remoteAddress;
 
-      // Validate membership ID
-      if (!membershipId) {
+      // Validate required fields
+      if (!membershipId || !walletAddress) {
         return res.status(400).json({
           status: "error",
-          message: "Membership ID is required",
+          message: "Membership ID and wallet address are required",
         });
       }
 
@@ -304,6 +305,14 @@ app.post(
         });
       }
 
+      // Validate that the wallet address is authorized for this membership
+      if (!membership.isAuthorizedAddress(walletAddress)) {
+        return res.status(403).json({
+          status: "error",
+          message: "Wallet address is not authorized for this membership",
+        });
+      }
+
       const passId = generateDayPassId();
       const validUntil = new Date();
       validUntil.setHours(23, 59, 59, 999); // Valid until end of day
@@ -312,6 +321,7 @@ app.post(
       const qrData = JSON.stringify({
         passId,
         membershipId,
+        walletAddress,
         validUntil: validUntil.toISOString(),
         type: "day-pass",
       });
@@ -329,6 +339,7 @@ app.post(
       const dayPass = new DayPass({
         passId,
         membershipId,
+        walletAddress,
         qrCode: qrCodeDataUrl,
         validUntil,
         requestIp: clientIp,
@@ -342,6 +353,7 @@ app.post(
         dayPass: {
           passId: dayPass.passId,
           membershipId: dayPass.membershipId,
+          walletAddress: dayPass.walletAddress,
           qrCode: dayPass.qrCode,
           issuedDate: dayPass.issuedDate,
           validUntil: dayPass.validUntil,
@@ -464,14 +476,32 @@ app.get("/day-passes/history", async (req: Request, res: Response) => {
       .sort({ issuedDate: -1 })
       .limit(limit)
       .skip(skip)
-      .select("-requestIp -qrCode")
-      .populate("membershipId", "membershipId purchasedBy");
+      .select("-requestIp -qrCode");
+
+    // Manually join membership data
+    const dayPassesWithMembership = await Promise.all(
+      dayPasses.map(async (dayPass) => {
+        const membership = await Membership.findOne({
+          membershipId: dayPass.membershipId,
+        }).select("membershipId purchasedBy");
+
+        return {
+          ...dayPass.toObject(),
+          membership: membership
+            ? {
+                membershipId: membership.membershipId,
+                purchasedBy: membership.purchasedBy,
+              }
+            : null,
+        };
+      })
+    );
 
     const total = await DayPass.countDocuments();
     const used = await DayPass.countDocuments({ isUsed: true });
 
     res.json({
-      dayPasses,
+      dayPasses: dayPassesWithMembership,
       stats: {
         total,
         used,
@@ -480,7 +510,7 @@ app.get("/day-passes/history", async (req: Request, res: Response) => {
       pagination: {
         current: page,
         total: Math.ceil(total / limit),
-        count: dayPasses.length,
+        count: dayPassesWithMembership.length,
       },
     });
   } catch (error) {
@@ -488,6 +518,177 @@ app.get("/day-passes/history", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch day pass history" });
   }
 });
+
+// Get day passes for a specific membership
+app.get(
+  "/memberships/:membershipId/day-passes",
+  async (req: Request, res: Response) => {
+    try {
+      const { membershipId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const page = parseInt(req.query.page as string) || 1;
+      const skip = (page - 1) * limit;
+
+      if (!membershipId) {
+        return res.status(400).json({
+          status: "error",
+          message: "Membership ID is required",
+        });
+      }
+
+      // Check if membership exists
+      const membership = await Membership.findOne({ membershipId });
+      if (!membership) {
+        return res.status(404).json({
+          status: "error",
+          message: "Membership not found",
+        });
+      }
+
+      // Get day passes for this membership
+      const dayPasses = await DayPass.find({ membershipId })
+        .sort({ issuedDate: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select("-requestIp -qrCode"); // Exclude sensitive data
+
+      const total = await DayPass.countDocuments({ membershipId });
+      const used = await DayPass.countDocuments({ membershipId, isUsed: true });
+
+      // Check if membership is currently valid
+      const now = new Date();
+      const isCurrentlyValid =
+        membership.isActive &&
+        membership.paymentVerified &&
+        now >= membership.startDate &&
+        now <= membership.endDate;
+
+      res.json({
+        status: "success",
+        membership: {
+          membershipId: membership.membershipId,
+          purchasedBy: membership.purchasedBy,
+          startDate: membership.startDate,
+          endDate: membership.endDate,
+          isActive: membership.isActive,
+          isCurrentlyValid,
+        },
+        dayPasses,
+        stats: {
+          total,
+          used,
+          unused: total - used,
+        },
+        pagination: {
+          current: page,
+          total: Math.ceil(total / limit),
+          count: dayPasses.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching day passes for membership:", error);
+      res.status(500).json({
+        status: "error",
+        message: "Failed to fetch day passes for membership",
+      });
+    }
+  }
+);
+
+// Get day passes for a specific membership and wallet address
+app.get(
+  "/memberships/:membershipId/wallet/:walletAddress/day-passes",
+  async (req: Request, res: Response) => {
+    try {
+      const { membershipId, walletAddress } = req.params;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const page = parseInt(req.query.page as string) || 1;
+      const skip = (page - 1) * limit;
+
+      if (!membershipId || !walletAddress) {
+        return res.status(400).json({
+          status: "error",
+          message: "Membership ID and wallet address are required",
+        });
+      }
+
+      // Check if membership exists
+      const membership = await Membership.findOne({ membershipId });
+      if (!membership) {
+        return res.status(404).json({
+          status: "error",
+          message: "Membership not found",
+        });
+      }
+
+      // Validate that the wallet address is authorized for this membership
+      if (!membership.isAuthorizedAddress(walletAddress)) {
+        return res.status(403).json({
+          status: "error",
+          message: "Wallet address is not authorized for this membership",
+        });
+      }
+
+      // Get day passes for this membership and wallet address
+      const dayPasses = await DayPass.find({ membershipId, walletAddress })
+        .sort({ issuedDate: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select("-requestIp -qrCode"); // Exclude sensitive data
+
+      const total = await DayPass.countDocuments({
+        membershipId,
+        walletAddress,
+      });
+      const used = await DayPass.countDocuments({
+        membershipId,
+        walletAddress,
+        isUsed: true,
+      });
+
+      // Check if membership is currently valid
+      const now = new Date();
+      const isCurrentlyValid =
+        membership.isActive &&
+        membership.paymentVerified &&
+        now >= membership.startDate &&
+        now <= membership.endDate;
+
+      res.json({
+        status: "success",
+        membership: {
+          membershipId: membership.membershipId,
+          purchasedBy: membership.purchasedBy,
+          startDate: membership.startDate,
+          endDate: membership.endDate,
+          isActive: membership.isActive,
+          isCurrentlyValid,
+        },
+        walletAddress,
+        dayPasses,
+        stats: {
+          total,
+          used,
+          unused: total - used,
+        },
+        pagination: {
+          current: page,
+          total: Math.ceil(total / limit),
+          count: dayPasses.length,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Error fetching day passes for membership and wallet:",
+        error
+      );
+      res.status(500).json({
+        status: "error",
+        message: "Failed to fetch day passes for membership and wallet",
+      });
+    }
+  }
+);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({
@@ -500,6 +701,10 @@ app.get("/", (req: Request, res: Response) => {
         "Generate a day pass QR code (protected by x402 - $0.0050)",
       "GET /get-membership-details/:membershipId":
         "Get membership details and history",
+      "GET /memberships/:membershipId/day-passes":
+        "Get all day passes for a specific membership",
+      "GET /memberships/:membershipId/wallet/:walletAddress/day-passes":
+        "Get day passes for a specific membership and wallet address",
       "POST /verify-payment": "Verify x402 payment",
       "GET /memberships/history": "Get membership history (admin)",
       "GET /day-passes/history": "Get day pass history (admin)",
