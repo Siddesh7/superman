@@ -85,8 +85,6 @@ export default function LoginPage() {
     isUserLoading,
   ]);
 
-  console.log("Onboarding step", onboardingStep);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-10">
       <div className="w-full max-w-md">

@@ -13,10 +13,10 @@ import { Group } from "@/types/groups";
 import { GroupCard } from "./GroupCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGroups } from "@/lib/hooks/useGroups";
-import { useGlobalContext } from "@/context/GlobalContext";
+import { useRouter } from "next/navigation";
 
 const GroupsComponent = () => {
-  const { setShowCreateGroupModal } = useGlobalContext();
+  const router = useRouter();
   const { data: groups = [], isLoading, error } = useGroups();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,7 +76,7 @@ const GroupsComponent = () => {
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
               size="lg"
-              onClick={() => setShowCreateGroupModal(true)}
+              onClick={() => router.push("/createGroup")}
             >
               <Plus className="w-5 h-5 mr-2" />
               Create Group

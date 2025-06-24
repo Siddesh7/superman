@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
 import { SiteHeader } from "@/components/site-header";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import Provider from "./Providers";
@@ -38,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <head>
         <meta name="theme-color" content="#000000" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,9 +54,7 @@ export default function RootLayout({
       >
         <Provider>
           <div className="relative flex min-h-screen flex-col">
-            <div className="hidden lg:block">
-              <SiteHeader />
-            </div>
+            <SiteHeader />
             <div className="flex-1 lg:pb-0 pb-16">{children}</div>
             <BottomNavWrapper />
             <div className="hidden lg:block">

@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { useGlobalContext } from "@/context/GlobalContext";
 import JoinGroupModal from "@/components/groups/JoinGroupModal";
 import DayPassModal from "@/components/groups/DayPassModal";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useBuyGymMembership } from "@/lib/hooks/useBuyGymMembership";
@@ -38,11 +38,10 @@ export default function GroupDetailsPage({
 }) {
   const resolvedParams = React.use(params);
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [showDayPassModal, setShowDayPassModal] = useState(false);
   const [dayPassData, setDayPassData] = useState<DayPass | null>(null);
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
 
   const {
     showJoinGroupModal,
@@ -89,6 +88,14 @@ export default function GroupDetailsPage({
       setError(queryError.message);
     }
   }, [queryError]);
+
+  // Redirect to login if no session
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, sessionStatus, router]);
 
   const handleJoinClick = () => {
     if (group) {

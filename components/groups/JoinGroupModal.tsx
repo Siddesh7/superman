@@ -166,7 +166,7 @@ const JoinGroupModal = ({ group, onJoinSuccess }: JoinGroupModalProps) => {
               size="lg"
               type="submit"
               disabled={
-                joinGroup.isPending || isWalletLoading || !hasSufficientBalance
+                joinGroup.isPending || isWalletLoading || hasSufficientBalance
               }
               className="bg-indigo-600 flex-1 hover:bg-indigo-700 text-white px-4 py-2 rounded-button transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >

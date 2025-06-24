@@ -6,6 +6,7 @@ import {
   Link as LinkIcon,
   User,
   MessageCircle,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,10 +15,10 @@ const BottomNav = () => {
   const pathname = usePathname();
 
   const navItems = [
+    { icon: Home, label: "Home", href: "/" },
     { icon: Users, label: "Groups", href: "/groups" },
     { icon: PlusCircle, label: "Create", href: "/createGroup" },
     { icon: MessageCircle, label: "Chat", href: "/chat" },
-    { icon: LinkIcon, label: "Join", href: "/joinGroup" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
 

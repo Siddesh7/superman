@@ -13,3 +13,29 @@ export type Group = {
     isTargetAchieved?: boolean;
     membership_id?: string;
 }
+
+export interface GymOptionTypes {
+    id: string;
+    name: string;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    features: string[];
+    color: string;
+    popular?: boolean;
+}
+
+
+export type CreateGroupFormData = {
+    groupName: string;
+    maxMembers: number;
+    selectedGym: string;
+    isYearly: boolean;
+};
+
+export interface SubmissionData extends CreateGroupFormData {
+    totalCost: number;
+    costPerPerson: number;
+    monthlySavings: number;
+    selectedGymData: GymOptionTypes | undefined;
+    submittedAt: string;
+}

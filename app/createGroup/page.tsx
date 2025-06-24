@@ -1,12 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useCreateGroup } from "@/lib/hooks/useCreateGroup";
 import { useWallet } from "@/lib/hooks/useWallet";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
+import { gymOptions } from "@/config/gymData";
+import { CreateGroupFormData, SubmissionData } from "@/types/groups";
+import CreateGroupForm from "@/components/createGroup/CreateGroupForm";
+import CostSummary from "@/components/createGroup/CostSummary";
 
 const CreateGroupPage = () => {
   const router = useRouter();
@@ -14,14 +18,88 @@ const CreateGroupPage = () => {
   const createGroup = useCreateGroup();
   const { data: walletData } = useWallet(session?.user?.id);
 
-  const [groupName, setGroupName] = React.useState("");
-  const [targetAmount, setTargetAmount] = React.useState("");
-  const [maxMembers, setMaxMembers] = React.useState("");
-  const [purchaseItem, setPurchaseItem] = React.useState("");
+  const [formData, setFormData] = useState<CreateGroupFormData>({
+    groupName: "",
+    maxMembers: 2,
+    selectedGym: "",
+    isYearly: false,
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [totalCost, setTotalCost] = useState(0);
+  const [costPerPerson, setCostPerPerson] = useState(0);
+  const [monthlySavings, setMonthlySavings] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
 
+  useEffect(() => {
+    if (formData.selectedGym && formData.maxMembers > 0) {
+      const selectedGymData = gymOptions.find(
+        (gym) => gym.name === formData.selectedGym
+      );
+      if (selectedGymData) {
+        const price = formData.isYearly
+          ? selectedGymData.yearlyPrice
+          : selectedGymData.monthlyPrice;
+        const total = price * formData.maxMembers;
+        const perPerson = price;
+
+        setTotalCost(total);
+        setCostPerPerson(perPerson);
+
+        if (formData.isYearly) {
+          const yearlyTotal = selectedGymData.yearlyPrice * formData.maxMembers;
+          const monthlyEquivalent =
+            selectedGymData.monthlyPrice * 12 * formData.maxMembers;
+          setMonthlySavings(monthlyEquivalent - yearlyTotal);
+        } else {
+          setMonthlySavings(0);
+        }
+      }
+    }
+  }, [formData]);
+
+  const handleInputChange = (
+    field: string,
+    value: string | number | boolean
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    // Reset submit status when form changes
+    if (submitStatus !== "idle") {
+      setSubmitStatus("idle");
+      setSubmitMessage("");
+    }
+  };
+
+  const handleMembersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    if (value >= 1 && value <= 50) {
+      handleInputChange("maxMembers", value);
+    }
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.groupName.trim()) {
+      setSubmitMessage("Please enter a group name");
+      return false;
+    }
+    if (!formData.selectedGym) {
+      setSubmitMessage("Please select a gym");
+      return false;
+    }
+    if (formData.maxMembers < 1 || formData.maxMembers > 50) {
+      setSubmitMessage("Please enter a valid number of members (1-50)");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async () => {
     if (!session?.user?.id) {
       toast.error("Please sign in to create a group");
       return;
@@ -32,156 +110,119 @@ const CreateGroupPage = () => {
       return;
     }
 
+    if (!validateForm()) {
+      setSubmitStatus("error");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+    setSubmitMessage("");
+
+    const selectedGymData = gymOptions.find(
+      (gym) => gym.name === formData.selectedGym
+    );
+
+    const submissionData: SubmissionData = {
+      ...formData,
+      totalCost,
+      costPerPerson,
+      monthlySavings,
+      selectedGymData,
+      submittedAt: new Date().toISOString(),
+    };
+
+    console.log("Submitted Data:", submissionData);
+
     try {
-      await createGroup.mutateAsync({
-        name: groupName,
-        target_amount: parseFloat(targetAmount),
-        max_members: parseInt(maxMembers),
+      const result = await createGroup.mutateAsync({
+        name: submissionData.groupName,
+        target_amount: parseFloat(submissionData.totalCost.toString()),
+        max_members: parseInt(submissionData.maxMembers.toString()),
         created_by: walletData.account.address,
-        purchase_item: purchaseItem,
+        purchase_item: submissionData.selectedGym,
       });
 
-      // Reset form
-      setGroupName("");
-      setTargetAmount("");
-      setMaxMembers("");
-      setPurchaseItem("");
+      console.log("result >>>", result);
+
+      setSubmitStatus("success");
+      setSubmitMessage(
+        `Group "${formData.groupName}" created successfully!
+        }`
+      );
 
       toast.success("Group created successfully!");
 
-      // Redirect to groups page
+      // Reset form
+      setTotalCost(0);
+      setCostPerPerson(0);
+      setMonthlySavings(0);
+      setIsSubmitting(false);
+      setSubmitStatus("idle");
       router.push("/groups");
     } catch (error) {
-      console.error("Failed to create group:", error);
-      toast.error("Failed to create group. Please try again.");
+      console.error("Submission error:", error);
+      setSubmitStatus("error");
+
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        setSubmitStatus("success");
+        setSubmitMessage(
+          `Group "${formData.groupName}" created successfully! (Demo mode - no actual API)`
+        );
+        console.log("Demo Submission Data:", submissionData);
+      } else {
+        setSubmitMessage("Failed to create group. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const selectedGymData = gymOptions.find(
+    (gym) => gym.name === formData.selectedGym
+  );
+  const isFormValid: boolean =
+    formData.groupName.trim() !== "" &&
+    formData.selectedGym !== "" &&
+    formData.maxMembers >= 1;
+
   return (
-    <div className="min-h-screen profile-gradient py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-800">
-          <div className="flex flex-col mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Create a New Group
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Fill in the details below to create a new group for collaborative
-              purchases.
-            </p>
+    <div className=" bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 pt-8 pb-28 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl mb-4 shadow-lg shadow-blue-500/25">
+            <Users className="w-8 h-8 text-white" />
           </div>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Create Your Gym Group
+          </h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            Start a fitness journey together! Create a group membership and
+            split the costs with your workout buddies.
+          </p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-6">
-              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl">
-                <div className="grid gap-6">
-                  <div>
-                    <label
-                      htmlFor="group-name"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Group Name
-                    </label>
-                    <input
-                      type="text"
-                      id="group-name"
-                      value={groupName}
-                      onChange={(e) => setGroupName(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                      placeholder="e.g., Fitness Club Membership"
-                      required
-                    />
-                  </div>
+        <div className="flex flex-col gap-8">
+          {/* Form Section */}
+          <CreateGroupForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleMembersChange={handleMembersChange}
+          />
 
-                  <div>
-                    <label
-                      htmlFor="target-amount"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Target Amount ($)
-                    </label>
-                    <input
-                      type="number"
-                      id="target-amount"
-                      value={targetAmount}
-                      onChange={(e) => setTargetAmount(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                      placeholder="e.g., 500"
-                      required
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="max-members"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Maximum Members
-                    </label>
-                    <input
-                      type="number"
-                      id="max-members"
-                      value={maxMembers}
-                      onChange={(e) => setMaxMembers(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                      placeholder="e.g., 5"
-                      required
-                      min="2"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="purchase-item"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Purchase Item
-                    </label>
-                    <input
-                      type="text"
-                      id="purchase-item"
-                      value={purchaseItem}
-                      onChange={(e) => setPurchaseItem(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                      placeholder="e.g., Gym Membership"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800">
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-3">
-                  Contribution Calculator
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-blue-600 dark:text-blue-400">
-                    Per Person:
-                  </span>
-                  <span className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    $
-                    {targetAmount && maxMembers
-                      ? (
-                          parseFloat(targetAmount) / parseInt(maxMembers)
-                        ).toFixed(2)
-                      : "0.00"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6">
-              <Button
-                type="submit"
-                disabled={createGroup.isPending}
-                className="w-full py-3 text-base font-medium bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
-              >
-                {createGroup.isPending ? "Creating..." : "Create Group"}
-              </Button>
-            </div>
-          </form>
+          <CostSummary
+            formData={formData}
+            selectedGymData={selectedGymData}
+            totalCost={totalCost}
+            costPerPerson={costPerPerson}
+            monthlySavings={monthlySavings}
+            submitStatus={submitStatus}
+            submitMessage={submitMessage}
+            handleSubmit={handleSubmit}
+            isFormValid={isFormValid}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
     </div>

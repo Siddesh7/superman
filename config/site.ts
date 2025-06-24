@@ -1,23 +1,10 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-    name: "SuperMan",
+    name: "Superman",
     description:
         "",
-    mainNav: [
-        {
-            title: "Home",
-            href: "/",
-        },
-        {
-            title: "Groups",
-            href: "/groups"
-        },
-        {
-            title: "Profile",
-            href: "/profile"
-        }
-    ],
+    mainNav: [],
     links: {
         twitter: "https://twitter.com/shadcn",
         github: "https://github.com/shadcn/ui",

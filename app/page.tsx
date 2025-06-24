@@ -1,20 +1,13 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { LandingPage } from "@/components/homePage/LandingPage";
-import { useIsPWA } from "@/hooks/useIsPWA";
-import { useRouter } from "next/navigation";
+import { LoadingSection } from "@/components/reusables/LoadingSection";
 
 export default function Home() {
-  const isPWA = useIsPWA();
-  const router = useRouter();
+  const { status } = useSession();
 
-  if (isPWA) {
-    router.push("/login");
-  } else {
-    return (
-      <div className="min-h-screen  relative overflow-hidden">
-        <LandingPage />
-      </div>
-    );
-  }
+  if (status === "loading") return <LoadingSection />;
+
+  return <LandingPage />;
 }

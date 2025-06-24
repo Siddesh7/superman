@@ -7,6 +7,9 @@ import { useWallet } from "@/lib/hooks/useWallet";
 import { useSession, signIn } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { LoadingSection } from "@/components/reusables/LoadingSection";
+import { useCreateUser } from "@/lib/hooks/useCreateUser";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProfilePageContent = () => {
   const router = useRouter();
@@ -23,6 +26,14 @@ const ProfilePageContent = () => {
     isLoading: isUserLoading,
     error: userError,
   } = useUser(walletData?.account.address);
+
+  const queryClient = useQueryClient();
+  const {
+    mutate: createUser,
+    isPending: isCreatingUser,
+    isSuccess: isProfileCreated,
+    error: createUserError,
+  } = useCreateUser();
 
   const isLoading = isLoadingWalletData || isUserLoading;
 
@@ -52,6 +63,46 @@ const ProfilePageContent = () => {
   const handleBack = () => {
     setMobileSection(null);
   };
+
+  if (walletData && !existingUser) {
+    const walletAddress = walletData.account?.address;
+    if (isProfileCreated) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[80vh]">
+          <h2 className="text-2xl font-semibold mb-4">
+            Profile created! Loading your profile...
+          </h2>
+          <LoadingSection />
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col items-center justify-center h-[80vh]">
+        <h2 className="text-2xl font-semibold mb-4">No profile found</h2>
+        <button
+          onClick={() => {
+            if (!session?.user || !walletAddress) return;
+            createUser({
+              userId: session.user.id,
+              name: session.user.name ?? undefined,
+              email: session.user.email ?? undefined,
+              walletAddress,
+              profilePicUrl: session.user.image ?? undefined,
+            });
+          }}
+          disabled={isCreatingUser || !walletAddress}
+          className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-colors border border-indigo-700 disabled:opacity-50"
+        >
+          {isCreatingUser ? "Creating..." : "Create Profile"}
+        </button>
+        {createUserError && (
+          <p className="text-red-500 mt-2">
+            Failed to create profile. Please try again.
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] border-gray-200/20 dark:border-white/20 animate-scale-in transition-all duration-200 profile-gradient">
@@ -131,14 +182,6 @@ const Page = () => {
 };
 
 export default Page;
-
-const LoadingSection = () => {
-  return (
-    <div className="glass profile-gradient min-h-screen flex items-center justify-center h-[50vh]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100"></div>
-    </div>
-  );
-};
 
 const NoSession = () => {
   return (
