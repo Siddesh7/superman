@@ -62,7 +62,7 @@ export async function GET() {
                 success: true,
                 data: {
                     account: account,
-                    balance: 0,
+                    balances: [],
                 },
             });
         }
