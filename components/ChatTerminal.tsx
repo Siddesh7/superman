@@ -40,7 +40,7 @@ const ChatTerminal = ({
     {
       id: 1,
       type: "bot",
-      text: "Hi! I'm your GymGather assistant. How can I help you today?",
+      text: "Hi! I'm Superman AI. How can I help you today?",
       timestamp: new Date().toLocaleTimeString(),
     },
   ]);
@@ -165,7 +165,7 @@ const ChatTerminal = ({
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-white">GymGather Assistant</h3>
+              <h3 className="font-semibold text-white">Superman AI</h3>
               <p className="text-xs text-white/60">Online</p>
             </div>
           </div>
@@ -272,7 +272,7 @@ const ChatTerminal = ({
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800 dark:text-white">
-                  GymGather Assistant
+                  Superman AI
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-white/60">
                   Online

@@ -57,9 +57,6 @@ export default function RootLayout({
             <SiteHeader />
             <div className="flex-1 lg:pb-0 pb-16">{children}</div>
             <BottomNavWrapper />
-            <div className="hidden lg:block">
-              <ChatTerminal />
-            </div>
           </div>
           <TailwindIndicator />
           <Toaster />
