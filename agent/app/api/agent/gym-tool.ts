@@ -95,18 +95,20 @@ interface GymDayPassResponse {
  * @returns User data with groups and membership information
  */
 async function fetchUserData(walletAddress: string): Promise<UserApiResponse> {
+  console.log("fetching user data", walletAddress);
   const userApiUrl = `https://supermanai.vercel.app/api/user?wallet_address=${encodeURIComponent(
     walletAddress
   )}`;
 
   try {
+    console.log("userApiUrl", userApiUrl);
     const response = await fetch(userApiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
+    console.log("response", response);
     if (!response.ok) {
       throw new Error(
         `User API error: ${response.status} ${response.statusText}`
@@ -114,6 +116,7 @@ async function fetchUserData(walletAddress: string): Promise<UserApiResponse> {
     }
 
     const data = await response.json();
+    console.log("data", data);
     return data;
   } catch (error) {
     throw new Error(
