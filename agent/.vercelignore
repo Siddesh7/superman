@@ -1,0 +1,8 @@
+# Ignore parent directory files
+../*
+# Keep current directory
+!./*
+# Ignore git files from parent
+../.git
+# Ignore node_modules from parent
+../node_modules 

@@ -7,7 +7,7 @@ import { Message, generateId, generateText } from "ai";
 const getAllowedOrigins = () => {
   return [
     "http://localhost:3000",
-    "http://localhost:3002",
+    "http://localhost:3001",
     "https://superman-gymgather.vercel.app",
     "https://supermanai-agent.vercel.app",
   ];

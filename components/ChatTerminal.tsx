@@ -18,6 +18,7 @@ interface Message {
   type: "bot" | "user";
   text: string;
   timestamp: string;
+  qrCode?: string;
 }
 
 const ChatTerminal = ({
@@ -88,18 +89,15 @@ const ChatTerminal = ({
       }
 
       // Call the agent API
-      const response = await fetch(
-        "https://supermanai-agent.vercel.app/api/agent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userMessage: messageWithWallet,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:3002/api/agent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userMessage: messageWithWallet,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,14 +105,35 @@ const ChatTerminal = ({
 
       const data = await response.json();
 
+      // Process the response to extract QR codes and format gym pass responses
+      let formattedResponse = data.response;
+      let qrCodeData = null;
+
+      if (
+        data.response &&
+        (data.response.includes("gym day pass") ||
+          data.response.includes("QR Code"))
+      ) {
+        // Extract QR code data if present
+        const qrMatch = data.response.match(
+          /!\[QR Code\]\(data:image\/png;base64,([^)]+)\)/
+        );
+        if (qrMatch) {
+          qrCodeData = qrMatch[1];
+          formattedResponse =
+            "✅ Gym pass created! I paid for your pass. Here's your QR code:";
+        }
+      }
+
       // Add bot response
       const botResponse = {
         id: messages.length + 2,
         type: "bot" as const,
         text:
-          data.response ||
+          formattedResponse ||
           "I received your message, but I couldn't process it properly. Please try again.",
         timestamp: new Date().toLocaleTimeString(),
+        qrCode: qrCodeData,
       };
 
       setMessages((prev) => [...prev, botResponse]);
@@ -187,6 +206,15 @@ const ChatTerminal = ({
                   }`}
                 >
                   <p className="text-sm">{msg.text}</p>
+                  {msg.qrCode && (
+                    <div className="mt-3 flex justify-center">
+                      <img
+                        src={`data:image/png;base64,${msg.qrCode}`}
+                        alt="Gym Pass QR Code"
+                        className="w-32 h-32 rounded-lg border-2 border-white/20"
+                      />
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs text-white/50 mt-1">{msg.timestamp}</p>
               </div>
@@ -298,6 +326,15 @@ const ChatTerminal = ({
                     <p className="text-sm text-gray-800 dark:text-white">
                       {msg.text}
                     </p>
+                    {msg.qrCode && (
+                      <div className="mt-3 flex justify-center">
+                        <img
+                          src={`data:image/png;base64,${msg.qrCode}`}
+                          alt="Gym Pass QR Code"
+                          className="w-32 h-32 rounded-lg border-2 border-gray-300 dark:border-white/20"
+                        />
+                      </div>
+                    )}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-white/50 mt-1">
                     {msg.timestamp}

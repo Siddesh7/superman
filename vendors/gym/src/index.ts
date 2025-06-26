@@ -90,11 +90,11 @@ app.use(
       "0x9bfeBd2E81725D7a3282cdB01cD1C3732178E954") as `0x${string}`,
     {
       "POST /buy-membership": {
-        price: "$0.001",
+        price: "$2",
         network: "base-sepolia",
       },
       "POST /generate-day-pass": {
-        price: "$0.0031",
+        price: "$0.05",
         network: "base-sepolia",
       },
     },
