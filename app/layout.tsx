@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   keywords: ["gym", "fitness", "membership", "workout", "health"],
   authors: [{ name: "Superman Team" }],
   icons: [
-    { rel: "apple-touch-icon", url: "/icon-192x192.png" },
-    { rel: "icon", url: "/icon-192x192.png" },
+    { rel: "apple-touch-icon", url: "/logo.jpg" },
+    { rel: "icon", url: "/logo.jpg" },
   ],
 };
 
@@ -48,6 +48,10 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
         />
+        <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+        <link rel="shortcut icon" type="image/jpeg" href="/logo.jpg" />
+        <link rel="apple-touch-icon" href="/logo.jpg" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/logo.jpg" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
