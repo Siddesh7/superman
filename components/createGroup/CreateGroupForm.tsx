@@ -80,22 +80,20 @@ const CreateGroupForm: FC<CreateGroupFormProps> = ({
               <div className="grid grid-cols-2 gap-1">
                 <button
                   onClick={() => handleInputChange("isYearly", false)}
-                  className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    !formData.isYearly
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
-                      : "text-gray-300 hover:text-white hover:bg-gray-600/50"
-                  }`}
+                  className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 ${!formData.isYearly
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
+                    : "text-gray-300 hover:text-white hover:bg-gray-600/50"
+                    }`}
                 >
                   <Clock className="w-4 h-4 inline mr-2" />
                   Monthly
                 </button>
                 <button
                   onClick={() => handleInputChange("isYearly", true)}
-                  className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    formData.isYearly
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
-                      : "text-gray-300 hover:text-white hover:bg-gray-600/50"
-                  }`}
+                  className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 ${formData.isYearly
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
+                    : "text-gray-300 hover:text-white hover:bg-gray-600/50"
+                    }`}
                 >
                   <Star className="w-4 h-4 inline mr-2" />
                   Yearly
@@ -117,75 +115,73 @@ const CreateGroupForm: FC<CreateGroupFormProps> = ({
             </h2>
 
             <div className="grid md:grid-cols-1 gap-4">
-              {gymOptions.map((gym) => (
-                <div
-                  key={gym.id}
-                  onClick={() => handleInputChange("selectedGym", gym.name)}
-                  className={`relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${
-                    formData.selectedGym === gym.name
+              {gymOptions.map((gym) => {
+                const totalPrice = formData.isYearly ? gym.yearlyPrice : gym.monthlyPrice;
+                return (
+                  <div
+                    key={gym.id}
+                    onClick={() => handleInputChange("selectedGym", gym.name)}
+                    className={`relative p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${formData.selectedGym === gym.name
                       ? "border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/20"
                       : "border-gray-600 bg-gray-700/30 hover:border-gray-500 hover:bg-gray-700/50 hover:shadow-lg"
-                  }`}
-                >
-                  {gym.popular && (
-                    <div className="absolute -top-3 left-6">
-                      <span className="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                        POPULAR
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-3">
-                        <div
-                          className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gym.color} flex items-center justify-center mr-4 shadow-lg`}
-                        >
-                          <div className="w-6 h-6 bg-white rounded-full"></div>
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-white">
-                            {gym.name}
-                          </h3>
-                          <p className="text-sm text-gray-300">
-                            $
-                            {formData.isYearly
-                              ? gym.yearlyPrice
-                              : gym.monthlyPrice}
-                            <span className="text-gray-400">
-                              /{formData.isYearly ? "year" : "month"} per person
-                            </span>
-                          </p>
-                        </div>
+                      }`}
+                  >
+                    {gym.popular && (
+                      <div className="absolute -top-3 left-6">
+                        <span className="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                          POPULAR
+                        </span>
                       </div>
+                    )}
 
-                      <div className="grid grid-cols-2 gap-2">
-                        {gym.features.map((feature, index) => (
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-3">
                           <div
-                            key={index}
-                            className="flex items-center text-sm text-gray-300"
+                            className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gym.color} flex items-center justify-center mr-4 shadow-lg`}
                           >
-                            <Check className="w-4 h-4 mr-2 text-emerald-400" />
-                            {feature}
+                            <div className="w-6 h-6 bg-white rounded-full"></div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-white">
+                              {gym.name}
+                            </h3>
+                            <p className="text-sm text-gray-300">
+                              ${totalPrice}
+                              <span className="text-gray-400">
+                                /{formData.isYearly ? "year" : "month"} (Total Membership Amount)
+                              </span>
+                            </p>
+                          </div>
+                        </div>
 
-                    <div
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        formData.selectedGym === gym.name
+                        <div className="grid grid-cols-2 gap-2">
+                          {gym.features.map((feature, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center text-sm text-gray-300"
+                            >
+                              <Check className="w-4 h-4 mr-2 text-emerald-400" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.selectedGym === gym.name
                           ? "border-blue-500 bg-blue-500"
                           : "border-gray-500"
-                      }`}
-                    >
-                      {formData.selectedGym === gym.name && (
-                        <Check className="w-4 h-4 text-white" />
-                      )}
+                          }`}
+                      >
+                        {formData.selectedGym === gym.name && (
+                          <Check className="w-4 h-4 text-white" />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

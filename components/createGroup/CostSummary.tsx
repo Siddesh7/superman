@@ -43,8 +43,8 @@ const CostSummary: FC<CostSummaryProps> = ({
           </h2>
 
           {formData.selectedGym &&
-          selectedGymData &&
-          formData.maxMembers > 0 ? (
+            selectedGymData &&
+            formData.maxMembers > 0 ? (
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-blue-500/20 to-indigo-600/20 border border-blue-500/30 rounded-2xl p-6">
                 <div className="text-center">
@@ -55,14 +55,14 @@ const CostSummary: FC<CostSummaryProps> = ({
                     ${totalCost.toFixed(2)}
                   </div>
                   <p className="text-sm text-gray-300">
-                    Total {formData.isYearly ? "yearly" : "monthly"} cost
+                    Net Amount Payable by Group ({formData.isYearly ? "yearly" : "monthly"})
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-700">
-                  <span className="text-gray-300">Per person</span>
+                  <span className="text-gray-300">Amount Payable per Person</span>
                   <span className="font-semibold text-white">
                     ${costPerPerson.toFixed(2)}/
                     {formData.isYearly ? "year" : "month"}
@@ -96,11 +96,10 @@ const CostSummary: FC<CostSummaryProps> = ({
               {/* Submit Status Messages */}
               {submitStatus !== "idle" && (
                 <div
-                  className={`p-4 rounded-xl border ${
-                    submitStatus === "success"
-                      ? "bg-emerald-500/20 border-emerald-500/30"
-                      : "bg-red-500/20 border-red-500/30"
-                  }`}
+                  className={`p-4 rounded-xl border ${submitStatus === "success"
+                    ? "bg-emerald-500/20 border-emerald-500/30"
+                    : "bg-red-500/20 border-red-500/30"
+                    }`}
                 >
                   <div className="flex items-center">
                     {submitStatus === "success" ? (
@@ -109,11 +108,10 @@ const CostSummary: FC<CostSummaryProps> = ({
                       <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
                     )}
                     <p
-                      className={`text-sm font-medium ${
-                        submitStatus === "success"
-                          ? "text-emerald-300"
-                          : "text-red-300"
-                      }`}
+                      className={`text-sm font-medium ${submitStatus === "success"
+                        ? "text-emerald-300"
+                        : "text-red-300"
+                        }`}
                     >
                       {submitMessage}
                     </p>

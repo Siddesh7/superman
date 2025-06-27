@@ -43,8 +43,8 @@ const CreateGroupPage = () => {
         const price = formData.isYearly
           ? selectedGymData.yearlyPrice
           : selectedGymData.monthlyPrice;
-        const total = price * formData.maxMembers;
-        const perPerson = price;
+        const total = price;
+        const perPerson = price / formData.maxMembers;
 
         setTotalCost(total);
         setCostPerPerson(perPerson);
